@@ -39,3 +39,31 @@
 .text-muted {
   color: #6c757d !important;
 }
+
+.channels-list {
+  height: 100%;
+  padding: 1rem 0;
+}
+
+.channels-list .list-group-item {
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+.channels-list .list-group-item.active {
+  background-color: #e9ecef;
+  color: #495057;
+  border-left: 4px solid #0d6efd !important;
+}
+
+.messages-list {
+  height: calc(100vh - 140px);
+}
+
+.messages-content {
+  max-height: calc(100% - 60px);
+}
+
+.message-form {
+  background-color: #f8f9fa;
+}

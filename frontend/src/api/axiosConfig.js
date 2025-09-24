@@ -1,9 +1,6 @@
 import axios from 'axios';
 
-// Базовая конфигурация axios
-axios.defaults.baseURL = 'http://localhost:5001';
-
-// Добавляем токен к каждому запросу
+// Автоматическое добавление токена к запросам
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -12,7 +9,7 @@ axios.interceptors.request.use((config) => {
   return config;
 });
 
-// Обрабатываем ошибки авторизации
+// Обработка ошибок авторизации
 axios.interceptors.response.use(
   (response) => response,
   (error) => {
