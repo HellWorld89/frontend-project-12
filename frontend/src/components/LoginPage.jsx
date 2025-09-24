@@ -1,35 +1,39 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Container, Card, Button, Row, Col } from 'react-bootstrap';
-import * as Yup from 'yup';
+import { Container, Card, Button, Row, Col, Alert } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import * as Yup from 'yup';
+import { loginUser, clearError } from '../store/authSlice';
 
-// Схема валидации с использованием Yup
 const LoginSchema = Yup.object().shape({
   username: Yup.string()
     .min(3, 'Имя пользователя должно содержать минимум 3 символа')
-    .max(20, 'Имя пользователя должно быть не длиннее 20 символов')
     .required('Имя пользователя обязательно'),
   password: Yup.string()
-    .min(6, 'Пароль должен содержать минимум 6 символов')
+    .min(5, 'Пароль должен содержать минимум 6 символов')
     .required('Пароль обязателен'),
 });
 
 const LoginPage = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
 
-  const handleSubmit = (values, { setSubmitting, setErrors }) => {
-    console.log('Form values:', values);
+  // Если пользователь уже авторизован, перенаправляем на главную
+  if (isAuthenticated) {
+    navigate('/');
+    return null;
+  }
 
-    // Здесь будет логика авторизации
-    // Временно эмулируем ошибку авторизации
-    setTimeout(() => {
-      setErrors({
-        username: 'Неверные имя пользователя или пароль',
-        password: 'Неверные имя пользователя или пароль'
-      });
-      setSubmitting(false);
-    }, 1000);
-  };
+  // В функции handleSubmit убедитесь, что отправляются правильные данные
+const handleSubmit = async (values) => {
+  dispatch(clearError());
+  const result = await dispatch(loginUser(values));
+
+  if (loginUser.fulfilled.match(result)) {
+    navigate('/');
+  }
+};
 
   return (
     <div className="h-100 bg-light">
@@ -60,9 +64,15 @@ const LoginPage = () => {
                       validationSchema={LoginSchema}
                       onSubmit={handleSubmit}
                     >
-                      {({ isSubmitting, errors, touched }) => (
+                      {({ errors, touched }) => (
                         <Form>
                           <h1 className="text-center mb-4">Войти</h1>
+
+                          {error && (
+                            <Alert variant="danger" className="mb-3">
+                              {error}
+                            </Alert>
+                          )}
 
                           <div className="form-floating mb-3">
                             <Field
@@ -101,9 +111,9 @@ const LoginPage = () => {
                           <Button
                             type="submit"
                             className="w-100 mb-3 btn btn-outline-primary"
-                            disabled={isSubmitting}
+                            disabled={loading}
                           >
-                            {isSubmitting ? 'Вход...' : 'Войти'}
+                            {loading ? 'Вход...' : 'Войти'}
                           </Button>
                         </Form>
                       )}
@@ -116,7 +126,6 @@ const LoginPage = () => {
                     <span>Нет аккаунта?</span>{' '}
                     <a href="/signup" onClick={(e) => {
                       e.preventDefault();
-                      // Здесь будет переход на страницу регистрации
                       console.log('Переход на страницу регистрации');
                     }}>
                       Регистрация

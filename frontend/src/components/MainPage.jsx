@@ -1,24 +1,26 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Container, Card, Button } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../store/authSlice';
 
 const MainPage = () => {
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { token, username } = useSelector((state) => state.auth);
 
-  // Проверка авторизации (заглушка)
-  const isAuthenticated = false;
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-    }
-  }, [isAuthenticated, navigate]);
-
-return (
+  return (
     <div className="h-100 bg-light">
       <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
         <div className="container">
           <a className="navbar-brand" href="/">Hexlet Chat</a>
+          <div className="navbar-nav ms-auto">
+            <span className="navbar-text me-3">Привет, {username}!</span>
+            <Button variant="outline-primary" onClick={handleLogout}>
+              Выйти
+            </Button>
+          </div>
         </div>
       </nav>
 
@@ -27,9 +29,9 @@ return (
           <Card.Header as="h2">Hexlet Chat</Card.Header>
           <Card.Body>
             <Card.Text>
-              Welcome to Hexlet Chat! This is a real-time messaging application.
+              Добро пожаловать в Hexlet Chat! Вы успешно авторизованы.
             </Card.Text>
-            <Button variant="primary">Start Chatting</Button>
+            <Button variant="primary">Начать общение</Button>
           </Card.Body>
         </Card>
       </Container>
