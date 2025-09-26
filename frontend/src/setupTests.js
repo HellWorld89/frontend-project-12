@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom';
 
+// Полифил для TextEncoder (нужен для React Router)
+const { TextEncoder, TextDecoder } = require('util');
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 // Mock для localStorage
 const localStorageMock = {
   getItem: jest.fn(),

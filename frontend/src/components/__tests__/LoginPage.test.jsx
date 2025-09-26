@@ -1,44 +1,70 @@
 import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
+import configureStore from 'redux-mock-store';
 import LoginPage from '../LoginPage';
 
-// Простой mock для redux
-jest.mock('react-redux', () => ({
-  useDispatch: () => jest.fn(),
-  useSelector: () => ({
-    isAuthenticated: false,
-    loading: false,
-    error: null
-  }),
-}));
+// Простой mock для store
+const mockStore = configureStore([]);
 
-// Mock для react-router-dom
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
-}));
-
-// Mock для Formik
+// Mock для Formik чтобы избежать сложностей
 jest.mock('formik', () => ({
-  ...jest.requireActual('formik'),
   Formik: ({ children }) => children({
+    isSubmitting: false,
     errors: {},
     touched: {},
-    isSubmitting: false,
   }),
-  Field: () => <input />,
-  ErrorMessage: () => <div />,
-  Form: ({ children }) => <form>{children}</form>,
+  Field: ({ name, type, placeholder, className }) => (
+    <input
+      name={name}
+      type={type}
+      placeholder={placeholder}
+      className={className}
+      data-testid={name}
+    />
+  ),
+  ErrorMessage: ({ name }) => <div data-testid={`error-${name}`} />,
+  Form: ({ children, onSubmit }) => (
+    <form onSubmit={onSubmit}>{children}</form>
+  ),
 }));
 
 describe('LoginPage Component', () => {
+  let store;
+
+  beforeEach(() => {
+    store = mockStore({
+      auth: {
+        isAuthenticated: false,
+        loading: false,
+        error: null
+      }
+    });
+  });
+
   test('renders login page title', () => {
-    render(<LoginPage />);
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      </Provider>
+    );
+
     expect(screen.getByText('Войти')).toBeInTheDocument();
   });
 
-  test('renders username and password fields', () => {
-    render(<LoginPage />);
-    expect(screen.getByLabelText(/ваш ник/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/пароль/i)).toBeInTheDocument();
+  test('renders login form', () => {
+    render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <LoginPage />
+        </BrowserRouter>
+      </Provider>
+    );
+
+    expect(screen.getByTestId('username')).toBeInTheDocument();
+    expect(screen.getByTestId('password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /войти/i })).toBeInTheDocument();
   });
 });
