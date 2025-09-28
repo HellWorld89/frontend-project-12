@@ -1,143 +1,141 @@
-import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { Container, Card, Button, Row, Col, Alert } from 'react-bootstrap';
+// components/LoginPage.jsx
+import { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import * as Yup from 'yup';
+import { Formik } from 'formik';
+import * as yup from 'yup';
 import { loginUser, clearError } from '../store/authSlice';
 
-const LoginSchema = Yup.object().shape({
-  username: Yup.string()
-    .min(3, 'Имя пользователя должно содержать минимум 3 символа')
-    .required('Имя пользователя обязательно'),
-  password: Yup.string()
-    .min(5, 'Пароль должен содержать минимум 6 символов')
-    .required('Пароль обязателен'),
+const loginSchema = yup.object().shape({
+  username: yup.string().required('Обязательное поле'),
+  password: yup.string().required('Обязательное поле'),
 });
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+  const [showError, setShowError] = useState(false);
 
-  // Если пользователь уже авторизован, перенаправляем на главную
-  if (isAuthenticated) {
-    navigate('/');
-    return null;
-  }
+  // Используем useEffect для навигации после рендера
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
-  // В функции handleSubmit убедитесь, что отправляются правильные данные
-const handleSubmit = async (values) => {
-  dispatch(clearError());
-  const result = await dispatch(loginUser(values));
+  useEffect(() => {
+    if (error) {
+      setShowError(true);
+    }
+  }, [error]);
 
-  if (loginUser.fulfilled.match(result)) {
-    navigate('/');
-  }
-};
+  const handleSubmit = async (values, { setSubmitting }) => {
+    setShowError(false);
+    dispatch(clearError());
+
+    try {
+      await dispatch(loginUser(values)).unwrap();
+      // Навигация произойдет автоматически через useEffect
+    } catch (error) {
+      console.error('Login error:', error);
+      setSubmitting(false);
+    }
+  };
+
+  const handleCloseError = () => {
+    setShowError(false);
+    dispatch(clearError());
+  };
 
   return (
-    <div className="h-100 bg-light">
-      <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
-        <div className="container">
-          <a className="navbar-brand" href="/">Hexlet Chat</a>
-        </div>
-      </nav>
+    <Container fluid className="h-100 bg-light">
+      <Row className="h-100 justify-content-center align-items-center">
+        <Col md={6} lg={4}>
+          <Card className="shadow">
+            <Card.Body className="p-4">
+              <div className="text-center mb-4">
+                <h2>Hexlet Chat</h2>
+                <p className="text-muted">Войдите в свой аккаунт</p>
+              </div>
 
-      <div className="h-100">
-        <Container fluid className="h-100">
-          <Row className="justify-content-center align-content-center h-100">
-            <Col xs={12} md={8} xxl={6}>
-              <Card className="shadow-sm">
-                <Card.Body className="row p-5">
-                  <Col xs={12} md={6} className="d-flex align-items-center justify-content-center">
-                    <img
-                      src="/assets/avatar-DIE1AEpS.jpg"
-                      className="rounded-circle"
-                      alt="Войти"
-                      style={{ width: '150px', height: '150px' }}
-                    />
-                  </Col>
+              {showError && error && (
+                <Alert variant="danger" dismissible onClose={handleCloseError}>
+                  {error}
+                </Alert>
+              )}
 
-                  <Col xs={12} md={6} className="mt-3 mt-md-0">
-                    <Formik
-                      initialValues={{ username: '', password: '' }}
-                      validationSchema={LoginSchema}
-                      onSubmit={handleSubmit}
+              <Formik
+                initialValues={{ username: '', password: '' }}
+                validationSchema={loginSchema}
+                onSubmit={handleSubmit}
+              >
+                {({
+                  values,
+                  errors,
+                  touched,
+                  handleChange,
+                  handleBlur,
+                  handleSubmit,
+                  isSubmitting,
+                }) => (
+                  <Form onSubmit={handleSubmit}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Имя пользователя</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="username"
+                        value={values.username}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.username && !!errors.username}
+                        disabled={loading}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.username}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group className="mb-3">
+                      <Form.Label>Пароль</Form.Label>
+                      <Form.Control
+                        type="password"
+                        name="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        isInvalid={touched.password && !!errors.password}
+                        disabled={loading}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.password}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="w-100"
+                      disabled={loading || isSubmitting}
                     >
-                      {({ errors, touched }) => (
-                        <Form>
-                          <h1 className="text-center mb-4">Войти</h1>
-
-                          {error && (
-                            <Alert variant="danger" className="mb-3">
-                              {error}
-                            </Alert>
-                          )}
-
-                          <div className="form-floating mb-3">
-                            <Field
-                              name="username"
-                              type="text"
-                              autoComplete="username"
-                              className={`form-control ${errors.username && touched.username ? 'is-invalid' : ''}`}
-                              placeholder="Ваш ник"
-                              id="username"
-                            />
-                            <label htmlFor="username">Ваш ник</label>
-                            <ErrorMessage
-                              name="username"
-                              component="div"
-                              className="invalid-tooltip"
-                            />
-                          </div>
-
-                          <div className="form-floating mb-4">
-                            <Field
-                              name="password"
-                              type="password"
-                              autoComplete="current-password"
-                              className={`form-control ${errors.password && touched.password ? 'is-invalid' : ''}`}
-                              placeholder="Пароль"
-                              id="password"
-                            />
-                            <label htmlFor="password">Пароль</label>
-                            <ErrorMessage
-                              name="password"
-                              component="div"
-                              className="invalid-tooltip"
-                            />
-                          </div>
-
-                          <Button
-                            type="submit"
-                            className="w-100 mb-3 btn btn-outline-primary"
-                            disabled={loading}
-                          >
-                            {loading ? 'Вход...' : 'Войти'}
-                          </Button>
-                        </Form>
+                      {loading ? (
+                        <>
+                          <Spinner animation="border" size="sm" className="me-2" />
+                          Вход...
+                        </>
+                      ) : (
+                        'Войти'
                       )}
-                    </Formik>
-                  </Col>
-                </Card.Body>
-
-                <div className="card-footer p-4">
-                  <div className="text-center">
-                    <span>Нет аккаунта?</span>{' '}
-                    <a href="/signup" onClick={(e) => {
-                      e.preventDefault();
-                      console.log('Переход на страницу регистрации');
-                    }}>
-                      Регистрация
-                    </a>
-                  </div>
-                </div>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      </div>
-    </div>
+                    </Button>
+                  </Form>
+                )}
+              </Formik>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

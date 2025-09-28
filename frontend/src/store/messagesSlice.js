@@ -1,145 +1,207 @@
+// store/messagesSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-
+import { deleteChannel } from './channelsSlice';
 
 export const fetchMessages = createAsyncThunk(
-    'messages/fetchMessages',
-    async (_, { rejectWithValue }) => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('/api/v1/messages', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Ошибка загрузки сообщений');
-        }
+  'messages/fetchMessages',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('/api/v1/messages', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Ошибка загрузки сообщений');
     }
+  }
 );
 
 export const sendMessage = createAsyncThunk(
-    'messages/sendMessage',
-    async ({ body, channelId }, { rejectWithValue }) => {
-        try {
-            const token = localStorage.getItem('token');
-            const username = localStorage.getItem('username');
+  'messages/sendMessage',
+  async ({ body, channelId }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const username = localStorage.getItem('username');
 
-            const response = await axios.post('/api/v1/messages', {
-                body,
-                channelId,
-                username,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+      const response = await axios.post('/api/v1/messages', {
+        body,
+        channelId,
+        username,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Ошибка отправки сообщения');
-        }
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Ошибка отправки сообщения');
     }
+  }
 );
 
 const messagesSlice = createSlice({
-    name: 'messages',
-    initialState: {
-        items: [],
-        loading: false,
-        error: null,
-        pendingMessages: [],
+  name: 'messages',
+  initialState: {
+    items: [],
+    loading: false,
+    error: null,
+    pendingMessages: [],
+    isSending: false,
+  },
+  reducers: {
+    addMessage: (state, action) => {
+      console.log('📥 messagesSlice: Adding message to store', {
+        messageId: action.payload.id,
+        tempId: action.payload.tempId,
+        body: action.payload.body,
+        channelId: action.payload.channelId,
+        currentItemsCount: state.items.length
+      });
+
+      // Ищем сообщение по ID (для сообщений от сервера)
+      const existingById = action.payload.id
+        ? state.items.find(msg => msg.id === action.payload.id)
+        : null;
+
+      // Ищем сообщение по tempId (для временных сообщений из очереди)
+      const existingByTempId = action.payload.tempId
+        ? state.items.find(msg => msg.tempId === action.payload.tempId)
+        : null;
+
+      if (!existingById && !existingByTempId) {
+        // Сообщения нет - добавляем
+        state.items.push(action.payload);
+        console.log('✅ messagesSlice: Message added successfully');
+
+        // Удаляем из очереди, если есть tempId
+        if (action.payload.tempId) {
+          state.pendingMessages = state.pendingMessages.filter(
+            msg => msg.tempId !== action.payload.tempId
+          );
+          console.log('🗑️ messagesSlice: Removed from pending queue');
+        }
+      } else if (existingByTempId && action.payload.id) {
+        // Заменяем временное сообщение на постоянное от сервера
+        const index = state.items.findIndex(msg => msg.tempId === action.payload.tempId);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+          console.log('🔄 messagesSlice: Temporary message replaced with server message');
+
+          // Удаляем из очереди
+          state.pendingMessages = state.pendingMessages.filter(
+            msg => msg.tempId !== action.payload.tempId
+          );
+        }
+      } else {
+        console.log('♻️ messagesSlice: Message already exists, skipping');
+      }
+    },
+    addPendingMessage: (state, action) => {
+      console.log('📦 messagesSlice: Adding to pending queue', {
+        tempId: action.payload.tempId,
+        body: action.payload.body,
+        currentQueueSize: state.pendingMessages.length
+      });
+
+      const messageWithMeta = {
+        ...action.payload,
+        tempId: action.payload.tempId || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        timestamp: Date.now(),
+        attempts: 0,
+        lastAttempt: 0,
         isSending: false,
+      };
+      state.pendingMessages.push(messageWithMeta);
+      state.pendingMessages.sort((a, b) => a.timestamp - b.timestamp);
+
+      console.log('✅ messagesSlice: Pending message added', {
+        newQueueSize: state.pendingMessages.length
+      });
     },
-    reducers: {
-        addMessage: (state, action) => {
-            // Проверяем, нет ли уже такого сообщения (для избежания дубликатов)
-            const existingMessage = state.items.find(msg => msg.id === action.payload.id);
-            if (!existingMessage) {
-                state.items.push(action.payload);
-            }
-        },
-        setSending: (state, action) => {
-            state.isSending = action.payload;
-        },
-        addPendingMessage: (state, action) => {
-            // Генерируем уникальный ID и временную метку
-            const messageWithMeta = {
-                ...action.payload,
-                tempId: action.payload.tempId || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                timestamp: Date.now(),
-                attempts: 0,
-                lastAttempt: 0,
-                isSending: false,
-            };
-            state.pendingMessages.push(messageWithMeta);
-            // Сортируем по временной метке для сохранения порядка
-            state.pendingMessages.sort((a, b) => a.timestamp - b.timestamp);
-        },
-        updatePendingMessage: (state, action) => {
-            const index = state.pendingMessages.findIndex(msg => msg.tempId === action.payload.tempId);
-            if (index !== -1) {
-                state.pendingMessages[index] = { ...state.pendingMessages[index], ...action.payload };
-            }
-        },
-        // Удаляем сообщение из очереди после успешной отправки
-        removePendingMessage: (state, action) => {
-            state.pendingMessages = state.pendingMessages.filter(
-                msg => msg.tempId !== action.payload.tempId
-            );
-        },
-        // Увеличиваем счетчик попыток
-        incrementMessageAttempts: (state, action) => {
-            const message = state.pendingMessages.find(
-                msg => msg.tempId === action.payload.tempId
-            );
-            if (message) {
-                message.attempts += 1;
-                message.lastAttempt = Date.now();
-            }
-        },
-        updateMessage: (state, action) => {
-            const index = state.items.findIndex(message => message.id === action.payload.id);
-            if (index !== -1) {
-                state.items[index] = action.payload;
-            }
-        },
-        removeMessage: (state, action) => {
-            state.items = state.items.filter(message => message.id !== action.payload.id);
-        },
-        clearMessages: (state) => {
-            state.items = [];
-        },
+    removePendingMessage: (state, action) => {
+      console.log('🗑️ messagesSlice: Removing from pending queue', {
+        tempId: action.payload.tempId,
+        queueSizeBefore: state.pendingMessages.length
+      });
+
+      state.pendingMessages = state.pendingMessages.filter(
+        msg => msg.tempId !== action.payload.tempId
+      );
+
+      console.log('✅ messagesSlice: Pending message removed', {
+        queueSizeAfter: state.pendingMessages.length
+      });
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(fetchMessages.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-            })
-            .addCase(fetchMessages.fulfilled, (state, action) => {
-                state.loading = false;
-                state.items = action.payload;
-            })
-            .addCase(fetchMessages.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-            })
-            .addCase(sendMessage.fulfilled, (state, action) => {
-                // Сообщение уже добавлено через WebSocket, поэтому здесь ничего не делаем
-            });
+    // ДОБАВЛЯЕМ НОВОЕ ДЕЙСТВИЕ
+    updatePendingMessage: (state, action) => {
+      const { tempId, ...updates } = action.payload;
+      const messageIndex = state.pendingMessages.findIndex(msg => msg.tempId === tempId);
+      if (messageIndex !== -1) {
+        state.pendingMessages[messageIndex] = { ...state.pendingMessages[messageIndex], ...updates };
+        console.log('🔄 messagesSlice: Pending message updated', { tempId, updates });
+      }
     },
+    incrementMessageAttempts: (state, action) => {
+      const message = state.pendingMessages.find(
+        msg => msg.tempId === action.payload.tempId
+      );
+      if (message) {
+        message.attempts += 1;
+        message.lastAttempt = Date.now();
+      }
+    },
+    updateMessage: (state, action) => {
+      const index = state.items.findIndex(message => message.id === action.payload.id);
+      if (index !== -1) {
+        state.items[index] = action.payload;
+      }
+    },
+    removeMessage: (state, action) => {
+      state.items = state.items.filter(message => message.id !== action.payload.id);
+    },
+    clearMessages: (state) => {
+      state.items = [];
+    },
+    removeMessagesByChannelId: (state, action) => {
+      state.items = state.items.filter(message => message.channelId !== action.payload);
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchMessages.pending, (state) => {
+        console.log('⏳ messagesSlice: Fetching messages...');
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchMessages.fulfilled, (state, action) => {
+        console.log('✅ messagesSlice: Messages fetched successfully', {
+          count: action.payload.length
+        });
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchMessages.rejected, (state, action) => {
+        console.error('❌ messagesSlice: Failed to fetch messages:', action.payload);
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
 export const {
-    addMessage,
-    updateMessage,
-    removeMessage,
-    clearMessages,
-    addPendingMessage,
-    removePendingMessage,
-    updatePendingMessage,
-    incrementMessageAttempts,
+  addMessage,
+  updateMessage,
+  removeMessage,
+  removeMessagesByChannelId,
+  clearMessages,
+  addPendingMessage,
+  removePendingMessage,
+  updatePendingMessage, // ДОБАВЛЯЕМ В ЭКСПОРТ
+  incrementMessageAttempts,
 } = messagesSlice.actions;
 export default messagesSlice.reducer;

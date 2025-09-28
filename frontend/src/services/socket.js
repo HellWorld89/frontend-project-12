@@ -1,19 +1,14 @@
+// services/socket.js
 import { io } from 'socket.io-client';
 
 class SocketService {
   constructor() {
     this.socket = null;
     this.isConnected = false;
-    this.connectionPromise = null;
   }
 
-  connect() {
-    if (this.isConnected && this.socket) {
-      return this.socket;
-    }
-
-    // Создаем promise для управления подключением
-    this.connectionPromise = new Promise((resolve, reject) => {
+  async connect() {
+    return new Promise((resolve, reject) => {
       try {
         const token = localStorage.getItem('token');
 
@@ -22,54 +17,78 @@ class SocketService {
           return;
         }
 
-        this.socket = io('http://localhost:5001', {
+        console.log('🔌 SocketService: Connecting with token:', token.substring(0, 10) + '...');
+
+        const socketUrl = window.location.origin;
+
+        this.socket = io(socketUrl, {
           auth: {
             token: token
           },
-          transports: ['websocket', 'polling'] // Добавляем оба транспорта для надежности
+          transports: ['websocket', 'polling'],
+          timeout: 10000,
         });
 
         this.socket.on('connect', () => {
-          console.log('Connected to server');
+          console.log('✅ SocketService: WebSocket connected', {
+            id: this.socket.id,
+            connected: this.socket.connected
+          });
           this.isConnected = true;
           resolve(this.socket);
         });
 
         this.socket.on('disconnect', (reason) => {
-          console.log('Disconnected from server:', reason);
+          console.log('❌ SocketService: WebSocket disconnected:', reason);
           this.isConnected = false;
         });
 
         this.socket.on('connect_error', (error) => {
-          console.error('Connection error:', error);
+          console.error('💥 SocketService: Connection error:', error);
           this.isConnected = false;
+
+          // Проверяем, является ли ошибка аутентификационной
+          if (error.message.includes('auth') || error.message.includes('401')) {
+            console.warn('⚠️ WebSocket authentication error');
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            window.location.href = '/login';
+          }
+
           reject(error);
         });
 
-        // Таймаут подключения
+        // Логируем все исходящие события
+        const originalEmit = this.socket.emit.bind(this.socket);
+        this.socket.emit = (event, data, callback) => {
+          console.log('📤 SocketService: Emitting event:', { event, data });
+          return originalEmit(event, data, (response) => {
+            console.log('📨 SocketService: Event response:', { event, response });
+            if (callback) callback(response);
+          });
+        };
+
+        // Логируем все входящие события
+        this.socket.onAny((event, ...args) => {
+          console.log('📩 SocketService: Received event:', { event, args });
+        });
+
         setTimeout(() => {
           if (!this.isConnected) {
             reject(new Error('Connection timeout'));
           }
-        }, 5000);
+        }, 10000);
 
       } catch (error) {
         reject(error);
       }
     });
-
-    return this.socket; // Возвращаем socket, но работаем через promise
   }
 
   async waitForConnection() {
-    if (this.isConnected && this.socket) {
+    if (this.isConnected && this.socket?.connected) {
       return this.socket;
     }
-
-    if (this.connectionPromise) {
-      return await this.connectionPromise;
-    }
-
     return this.connect();
   }
 
@@ -82,9 +101,16 @@ class SocketService {
       this.socket.disconnect();
       this.socket = null;
       this.isConnected = false;
-      this.connectionPromise = null;
     }
   }
 }
 
-export default new SocketService();
+// Экспортируем экземпляр для глобального доступа (для отладки)
+const socketService = new SocketService();
+
+// Для отладки - добавляем в window
+if (typeof window !== 'undefined') {
+  window.socketService = socketService;
+}
+
+export default socketService;

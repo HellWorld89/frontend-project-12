@@ -1,63 +1,103 @@
-import { useEffect, useState } from 'react';
+// hooks/useWebSocket.js
+import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { addMessage } from '../store/messagesSlice';
-import { addChannel, removeChannel, updateChannel } from '../store/channelsSlice';
+import { addChannelFromServer, removeChannelFromServer, updateChannelFromServer } from '../store/channelsSlice';
 import socketService from '../services/socket';
 
 export const useWebSocket = () => {
   const dispatch = useDispatch();
-  const [socket, setSocket] = useState(null);
+  const eventHandlers = useRef(new Set());
 
   useEffect(() => {
     let mounted = true;
+    let socketInstance = null;
+
+    console.log('🔌 useWebSocket: Initializing WebSocket connection');
 
     const initializeSocket = async () => {
       try {
-        const socketInstance = await socketService.waitForConnection();
+        console.log('🔄 useWebSocket: Waiting for connection...');
+        socketInstance = await socketService.waitForConnection();
 
-        if (!mounted) return;
+        if (!mounted) {
+          console.log('🚫 useWebSocket: Component unmounted during connection');
+          return;
+        }
 
-        setSocket(socketInstance);
+        console.log('✅ useWebSocket: Connection established', {
+          socketId: socketInstance.id,
+          connected: socketInstance.connected
+        });
 
-        // Подписываемся на новые сообщения
-        socketInstance.on('newMessage', (message) => {
-          console.log('New message received:', message);
+        // Обработчик новых сообщений
+        const handleNewMessage = (message) => {
+          if (!mounted) {
+            console.log('🚫 useWebSocket: Component unmounted, ignoring message');
+            return;
+          }
+
+          console.log('📨 useWebSocket: Received newMessage event:', message);
           dispatch(addMessage(message));
-        });
+        };
 
-        // Подписываемся на новые каналы
-        socketInstance.on('newChannel', (channel) => {
-          console.log('New channel created:', channel);
-          dispatch(addChannel(channel));
-        });
+        // Обработчик новых каналов
+        const handleNewChannel = (channel) => {
+          if (!mounted) return;
+          console.log('📨 useWebSocket: Received newChannel event:', channel);
+          dispatch(addChannelFromServer(channel));
+        };
 
-        // Подписываемся на удаление каналов
-        socketInstance.on('removeChannel', ({ id }) => {
-          console.log('Channel removed:', id);
-          dispatch(removeChannel({ id }));
-        });
+        // Обработчик удаления каналов
+        const handleRemoveChannel = ({ id }) => {
+          if (!mounted) return;
+          console.log('📨 useWebSocket: Received removeChannel event:', id);
+          dispatch(removeChannelFromServer({ id }));
+        };
 
-        // Подписываемся на переименование каналов
-        socketInstance.on('renameChannel', (channel) => {
-          console.log('Channel renamed:', channel);
-          dispatch(updateChannel(channel));
-        });
+        // Обработчик переименования каналов
+        const handleRenameChannel = (channel) => {
+          if (!mounted) return;
+          console.log('📨 useWebSocket: Received renameChannel event:', channel);
+          dispatch(updateChannelFromServer(channel));
+        };
+
+        // Подписываемся на события
+        socketInstance.on('newMessage', handleNewMessage);
+        socketInstance.on('newChannel', handleNewChannel);
+        socketInstance.on('removeChannel', handleRemoveChannel);
+        socketInstance.on('renameChannel', handleRenameChannel);
+
+        // Сохраняем обработчики для очистки
+        eventHandlers.current.add(handleNewMessage);
+        eventHandlers.current.add(handleNewChannel);
+        eventHandlers.current.add(handleRemoveChannel);
+        eventHandlers.current.add(handleRenameChannel);
+
+        console.log('👂 useWebSocket: Subscribed to all events');
 
       } catch (error) {
-        console.error('Failed to initialize WebSocket:', error);
+        console.error('💥 useWebSocket: Failed to initialize WebSocket:', error);
       }
     };
 
     initializeSocket();
 
     return () => {
+      console.log('🧹 useWebSocket: Cleaning up');
       mounted = false;
-      if (socket) {
-        socket.off('newMessage');
-        socket.off('newChannel');
-        socket.off('removeChannel');
-        socket.off('renameChannel');
+
+      // Отписываемся от всех событий
+      if (socketInstance) {
+        eventHandlers.current.forEach(handler => {
+          socketInstance.off('newMessage', handler);
+          socketInstance.off('newChannel', handler);
+          socketInstance.off('removeChannel', handler);
+          socketInstance.off('renameChannel', handler);
+        });
+        eventHandlers.current.clear();
+        console.log('🔌 useWebSocket: Unsubscribed from all events');
       }
     };
-  }, [dispatch]);
+  }, [dispatch]); // УБИРАЕМ channels, messages из зависимостей
 };

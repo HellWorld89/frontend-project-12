@@ -32,25 +32,6 @@ const MessageForm = () => {
     }
   }, [infoMessage, error]);
 
-  // Следим за состоянием соединения для автоматического скрытия информационных сообщений
-  useEffect(() => {
-    const socket = socketService.getSocket();
-
-    if (socket) {
-      const handleConnect = () => {
-        if (infoMessage && infoMessage.includes('очередь')) {
-          setInfoMessage(null);
-        }
-      };
-
-      socket.on('connect', handleConnect);
-
-      return () => {
-        socket.off('connect', handleConnect);
-      };
-    }
-  }, [infoMessage]);
-
   const generateTempId = () => {
     return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   };
@@ -60,73 +41,46 @@ const MessageForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!canSendMessage()) return;
+  if (!canSendMessage()) return;
 
-    setIsSending(true);
-    setError(null);
-    setInfoMessage(null);
+  setIsSending(true);
+  setError(null);
+  setInfoMessage(null);
 
-    const socket = socketService.getSocket();
-    const isConnected = socket && socket.connected;
-    const isOnline = navigator.onLine;
+  try {
+    // ✅ Отправляем через Redux action (HTTP)
+    await dispatch(sendMessage({
+      body: messageText.trim(),
+      channelId: currentChannelId,
+    })).unwrap();
 
-    try {
-      if (isConnected && isOnline) {
-        // Пытаемся отправить сразу
-        await dispatch(sendMessage({
-          body: messageText.trim(),
-          channelId: currentChannelId,
-        })).unwrap();
+    setMessageText('');
+    console.log('✅ MessageForm: Message sent via HTTP');
 
-        setMessageText('');
-      } else {
-        // Добавляем в очередь для повторной отправки
-        const tempId = generateTempId();
-        dispatch(addPendingMessage({
-          body: messageText.trim(),
-          channelId: currentChannelId,
-          username,
-          tempId: tempId,
-          timestamp: Date.now(),
-          attempts: 0,
-          lastAttempt: 0,
-          isSending: false,
-        }));
+  } catch (error) {
+    console.error('Send message error:', error);
 
-        setMessageText('');
+    // Если ошибка при отправке, добавляем в очередь
+    const tempId = generateTempId();
+    dispatch(addPendingMessage({
+      body: messageText.trim(),
+      channelId: currentChannelId,
+      username,
+      tempId: tempId,
+      timestamp: Date.now(),
+      attempts: 0,
+      lastAttempt: 0,
+      isSending: false,
+    }));
 
-        if (!isOnline) {
-          setInfoMessage('📡 Сообщение добавлено в очередь (отсутствует интернет)');
-        } else if (!isConnected) {
-          setInfoMessage('🔌 Сообщение добавлено в очередь (проблемы с сервером)');
-        } else {
-          setInfoMessage('⏳ Сообщение добавлено в очередь');
-        }
-      }
-    } catch (error) {
-      console.error('Send message error:', error);
-
-      // Если ошибка при отправке, добавляем в очередь
-      const tempId = generateTempId();
-      dispatch(addPendingMessage({
-        body: messageText.trim(),
-        channelId: currentChannelId,
-        username,
-        tempId: tempId,
-        timestamp: Date.now(),
-        attempts: 0,
-        lastAttempt: 0,
-        isSending: false,
-      }));
-
-      setMessageText('');
-      setInfoMessage('⚠️ Сообщение добавлено в очередь из-за ошибки отправки');
-    } finally {
-      setIsSending(false);
-    }
-  };
+    setMessageText('');
+    setInfoMessage('⚠️ Сообщение добавлено в очередь из-за ошибки отправки');
+  } finally {
+    setIsSending(false);
+  }
+};
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -148,6 +102,7 @@ const MessageForm = () => {
         isSending: true
       }));
 
+      // ✅ ПРАВИЛЬНЫЙ ПОДХОД: используем Redux action
       await dispatch(sendMessage({
         body: message.body,
         channelId: message.channelId || currentChannelId,

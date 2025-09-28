@@ -1,3 +1,4 @@
+// components/MainPage.jsx
 import { useEffect, useState } from 'react';
 import { Container, Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,6 +8,7 @@ import { fetchChannels, setCurrentChannel } from '../store/channelsSlice';
 import { fetchMessages } from '../store/messagesSlice';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useMessageQueue } from '../hooks/useMessageQueue';
+import TestMessageForm from './TestMessageForm';
 import ChannelsList from './ChannelsList';
 import MessagesList from './MessagesList';
 import MessageForm from './MessageForm';
@@ -17,48 +19,63 @@ const MainPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, username } = useSelector((state) => state.auth);
   const { items: channels, currentChannelId, loading: channelsLoading, error: channelsError } = useSelector((state) => state.channels);
-  const { loading: messagesLoading, error: messagesError } = useSelector((state) => state.messages);
+  const { items: messages, loading: messagesLoading, error: messagesError } = useSelector((state) => state.messages);
 
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(null);
 
-  // Используем WebSocket и очередь сообщений
   useWebSocket();
   useMessageQueue();
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
+ useEffect(() => {
+  if (!isAuthenticated) {
+    navigate('/login');
+    return;
+  }
 
-    // Загружаем данные при монтировании компонента
-    const loadData = async () => {
-      try {
-        console.log('Loading channels and messages...');
+  const loadData = async () => {
+    try {
+      console.log('🔄 MainPage: Loading channels and messages...');
+      setLoadError(null);
 
-        // Загружаем каналы
-        await dispatch(fetchChannels()).unwrap();
+      const [channelsResult, messagesResult] = await Promise.allSettled([
+        dispatch(fetchChannels()).unwrap(),
+        dispatch(fetchMessages()).unwrap()
+      ]);
 
-        // Загружаем сообщения
-        await dispatch(fetchMessages()).unwrap();
+      console.log('📊 MainPage: Load results', {
+        channels: channelsResult.status,
+        messages: messagesResult.status
+      });
 
-        setDataLoaded(true);
-        console.log('Data loaded successfully');
-
-      } catch (error) {
-        console.error('Error loading data:', error);
-        setDataLoaded(true); // Все равно помечаем как загруженное, чтобы показать интерфейс
+      if (channelsResult.status === 'rejected') {
+        throw new Error(channelsResult.reason || 'Ошибка загрузки каналов');
       }
-    };
 
-    // Небольшая задержка для гарантии, что WebSocket успел подключиться
-    setTimeout(() => {
-      loadData();
-    }, 100);
+      if (messagesResult.status === 'rejected') {
+        console.warn('⚠️ MainPage: Messages load failed:', messagesResult.reason);
+      } else {
+        console.log('✅ MainPage: Messages loaded:', messagesResult.value.length, 'items');
+      }
 
-  }, [dispatch, isAuthenticated, navigate]);
+      setDataLoaded(true);
+      console.log('🎉 MainPage: Data loading completed');
 
-  // Автоматически выбираем первый канал после загрузки данных
+    } catch (error) {
+      console.error('💥 MainPage: Error loading data:', error);
+      setLoadError(error.message);
+      setDataLoaded(true);
+    }
+  };
+
+  const timer = setTimeout(() => {
+    loadData();
+  }, 500);
+
+  return () => clearTimeout(timer);
+}, [dispatch, isAuthenticated, navigate]);
+
+  // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
       const generalChannel = channels.find(channel => channel.name === 'general') || channels[0];
@@ -67,6 +84,17 @@ const MainPage = () => {
       }
     }
   }, [dataLoaded, channels, currentChannelId, dispatch]);
+
+  const handleReload = () => {
+    setDataLoaded(false);
+    setLoadError(null);
+    // Перезагружаем данные
+    setTimeout(() => {
+      dispatch(fetchChannels());
+      dispatch(fetchMessages());
+      setDataLoaded(true);
+    }, 1000);
+  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -83,8 +111,8 @@ const MainPage = () => {
     );
   }
 
-  // Показываем индикатор загрузки, пока данные не загружены
-  if (!dataLoaded || channelsLoading || messagesLoading) {
+  // Показываем ошибку загрузки
+  if (loadError) {
     return (
       <div className="h-100 bg-light">
         <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
@@ -99,6 +127,33 @@ const MainPage = () => {
           </div>
         </nav>
         <div className="d-flex justify-content-center align-items-center h-100">
+          <Alert variant="danger" className="text-center">
+            <h5>Ошибка загрузки данных</h5>
+            <p>{loadError}</p>
+            <div className="mt-3">
+              <Button variant="outline-danger" onClick={handleReload} className="me-2">
+                Попробовать снова
+              </Button>
+              <Button variant="outline-primary" onClick={handleLogout}>
+                Выйти
+              </Button>
+            </div>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
+
+  // Показываем индикатор загрузки только при первоначальной загрузке
+  if (!dataLoaded) {
+    return (
+      <div className="h-100 bg-light">
+        <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
+          <div className="container-fluid">
+            <a className="navbar-brand" href="/">Hexlet Chat</a>
+          </div>
+        </nav>
+        <div className="d-flex justify-content-center align-items-center h-100">
           <div className="text-center">
             <Spinner animation="border" role="status" className="mb-3">
               <span className="visually-hidden">Загрузка чата...</span>
@@ -106,20 +161,6 @@ const MainPage = () => {
             <p>Загрузка чата...</p>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (channelsError || messagesError) {
-    return (
-      <div className="h-100 bg-light d-flex justify-content-center align-items-center">
-        <Alert variant="danger" className="text-center">
-          <h5>Ошибка загрузки данных</h5>
-          <p>{channelsError || messagesError}</p>
-          <Button variant="outline-danger" onClick={() => window.location.reload()}>
-            Перезагрузить
-          </Button>
-        </Alert>
       </div>
     );
   }
@@ -139,7 +180,7 @@ const MainPage = () => {
       </nav>
 
       <ConnectionStatus />
-
+<TestMessageForm />
       <Container fluid className="h-100">
         <Row className="h-100">
           <Col md={3} className="border-end bg-white">

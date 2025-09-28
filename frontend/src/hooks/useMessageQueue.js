@@ -41,7 +41,7 @@ export const useMessageQueue = () => {
             lastAttempt: Date.now()
           }));
 
-          // Отправляем сообщение
+          // ✅ ПРАВИЛЬНЫЙ ПОДХОД: используем Redux action
           await dispatch(sendMessage({
             body: message.body,
             channelId: message.channelId || currentChannelId,
@@ -51,7 +51,7 @@ export const useMessageQueue = () => {
           dispatch(removePendingMessage({ tempId: message.tempId }));
           console.log('Message sent successfully:', message.tempId);
 
-          // Небольшая задержка между сообщениями для избежания конфликтов
+          // Небольшая задержка между сообщениями
           await new Promise(resolve => setTimeout(resolve, 100));
 
         } catch (error) {
@@ -60,7 +60,6 @@ export const useMessageQueue = () => {
             tempId: message.tempId,
             isSending: false
           }));
-          // Прерываем цикл при ошибке, чтобы сохранить порядок
           break;
         }
       }
@@ -76,7 +75,6 @@ export const useMessageQueue = () => {
 
     const handleConnect = () => {
       console.log('WebSocket connected, retrying messages');
-      // Небольшая задержка для стабилизации соединения
       setTimeout(() => {
         retryPendingMessages();
       }, 500);
@@ -84,12 +82,10 @@ export const useMessageQueue = () => {
 
     const handleOnline = () => {
       console.log('Browser online, checking connection');
-      // Проверяем WebSocket соединение при появлении интернета
       setTimeout(() => {
         if (socket && socket.connected) {
           retryPendingMessages();
         } else {
-          // Если WebSocket не подключен, пытаемся переподключиться
           socketService.connect().then(() => {
             setTimeout(() => retryPendingMessages(), 500);
           });
