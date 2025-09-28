@@ -4,16 +4,27 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { loginUser, clearError } from '../store/authSlice';
-import Header from './Header'; // Добавляем импорт Header
+import { registerUser } from '../store/authSlice';
+import Header from './Header';
 
 // Схема валидации
-const loginSchema = yup.object().shape({
-  username: yup.string().required('Обязательное поле'),
-  password: yup.string().required('Обязательное поле'),
+const signupSchema = yup.object().shape({
+  username: yup
+    .string()
+    .min(3, 'Имя пользователя должно быть от 3 до 20 символов')
+    .max(20, 'Имя пользователя должно быть от 3 до 20 символов')
+    .required('Обязательное поле'),
+  password: yup
+    .string()
+    .min(6, 'Пароль должен быть не менее 6 символов')
+    .required('Обязательное поле'),
+  confirmPassword: yup
+    .string()
+    .oneOf([yup.ref('password'), null], 'Пароли должны совпадать')
+    .required('Обязательное поле'),
 });
 
-const LoginPage = () => {
+const SignupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
@@ -35,12 +46,21 @@ const LoginPage = () => {
 
   const handleSubmit = async (values, { setSubmitting }) => {
     setShowError(false);
-    dispatch(clearError());
 
     try {
-      await dispatch(loginUser(values)).unwrap();
+      // Отправляем только username и password, confirmPassword не нужен серверу
+      const result = await dispatch(registerUser({
+        username: values.username,
+        password: values.password,
+      })).unwrap();
+
+      // После успешной регистрации автоматически логинимся
+      console.log('✅ Registration successful:', result);
+      // Редирект произойдет автоматически из-за изменения isAuthenticated
+
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Registration failed:', error);
+      // Ошибка уже будет в состоянии Redux
     } finally {
       setSubmitting(false);
     }
@@ -48,13 +68,13 @@ const LoginPage = () => {
 
   return (
     <div className="h-100 bg-light">
-      <Header /> {/* Добавляем Header */}
+      <Header />
       <Container className="h-100">
         <Row className="justify-content-center align-items-center h-100">
           <Col xs={12} md={8} lg={6}>
             <Card className="shadow-sm">
               <Card.Body className="p-5">
-                <h1 className="text-center mb-4">Вход</h1>
+                <h1 className="text-center mb-4">Регистрация</h1>
 
                 {showError && error && (
                   <Alert
@@ -68,8 +88,12 @@ const LoginPage = () => {
                 )}
 
                 <Formik
-                  initialValues={{ username: '', password: '' }}
-                  validationSchema={loginSchema}
+                  initialValues={{
+                    username: '',
+                    password: '',
+                    confirmPassword: '',
+                  }}
+                  validationSchema={signupSchema}
                   onSubmit={handleSubmit}
                 >
                   {({
@@ -93,13 +117,14 @@ const LoginPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.username && !!errors.username}
                           disabled={loading}
+                          placeholder="Введите имя пользователя (3-20 символов)"
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.username}
                         </Form.Control.Feedback>
                       </Form.Group>
 
-                      <Form.Group className="mb-4">
+                      <Form.Group className="mb-3">
                         <Form.Label htmlFor="password">Пароль</Form.Label>
                         <Form.Control
                           type="password"
@@ -110,9 +135,28 @@ const LoginPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.password && !!errors.password}
                           disabled={loading}
+                          placeholder="Введите пароль (не менее 6 символов)"
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.password}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+
+                      <Form.Group className="mb-4">
+                        <Form.Label htmlFor="confirmPassword">Подтверждение пароля</Form.Label>
+                        <Form.Control
+                          type="password"
+                          name="confirmPassword"
+                          id="confirmPassword"
+                          value={values.confirmPassword}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          isInvalid={touched.confirmPassword && !!errors.confirmPassword}
+                          disabled={loading}
+                          placeholder="Повторите пароль"
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {errors.confirmPassword}
                         </Form.Control.Feedback>
                       </Form.Group>
 
@@ -132,10 +176,10 @@ const LoginPage = () => {
                               aria-hidden="true"
                               className="me-2"
                             />
-                            Входим...
+                            Регистрируем...
                           </>
                         ) : (
-                          'Войти'
+                          'Зарегистрироваться'
                         )}
                       </Button>
                     </Form>
@@ -144,9 +188,9 @@ const LoginPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    Нет аккаунта?{' '}
-                    <Link to="/signup" className="text-decoration-none">
-                      Зарегистрироваться
+                    Уже есть аккаунт?{' '}
+                    <Link to="/login" className="text-decoration-none">
+                      Войти
                     </Link>
                   </p>
                 </div>
@@ -159,4 +203,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default SignupPage;

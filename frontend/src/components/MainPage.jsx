@@ -13,6 +13,7 @@ import ChannelsList from './ChannelsList';
 import MessagesList from './MessagesList';
 import MessageForm from './MessageForm';
 import ConnectionStatus from './ConnectionStatus';
+import Header from './Header'; // Добавляем импорт Header
 
 const MainPage = () => {
   const dispatch = useDispatch();
@@ -27,53 +28,53 @@ const MainPage = () => {
   useWebSocket();
   useMessageQueue();
 
- useEffect(() => {
-  if (!isAuthenticated) {
-    navigate('/login');
-    return;
-  }
-
-  const loadData = async () => {
-    try {
-      console.log('🔄 MainPage: Loading channels and messages...');
-      setLoadError(null);
-
-      const [channelsResult, messagesResult] = await Promise.allSettled([
-        dispatch(fetchChannels()).unwrap(),
-        dispatch(fetchMessages()).unwrap()
-      ]);
-
-      console.log('📊 MainPage: Load results', {
-        channels: channelsResult.status,
-        messages: messagesResult.status
-      });
-
-      if (channelsResult.status === 'rejected') {
-        throw new Error(channelsResult.reason || 'Ошибка загрузки каналов');
-      }
-
-      if (messagesResult.status === 'rejected') {
-        console.warn('⚠️ MainPage: Messages load failed:', messagesResult.reason);
-      } else {
-        console.log('✅ MainPage: Messages loaded:', messagesResult.value.length, 'items');
-      }
-
-      setDataLoaded(true);
-      console.log('🎉 MainPage: Data loading completed');
-
-    } catch (error) {
-      console.error('💥 MainPage: Error loading data:', error);
-      setLoadError(error.message);
-      setDataLoaded(true);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
     }
-  };
 
-  const timer = setTimeout(() => {
-    loadData();
-  }, 500);
+    const loadData = async () => {
+      try {
+        console.log('🔄 MainPage: Loading channels and messages...');
+        setLoadError(null);
 
-  return () => clearTimeout(timer);
-}, [dispatch, isAuthenticated, navigate]);
+        const [channelsResult, messagesResult] = await Promise.allSettled([
+          dispatch(fetchChannels()).unwrap(),
+          dispatch(fetchMessages()).unwrap()
+        ]);
+
+        console.log('📊 MainPage: Load results', {
+          channels: channelsResult.status,
+          messages: messagesResult.status
+        });
+
+        if (channelsResult.status === 'rejected') {
+          throw new Error(channelsResult.reason || 'Ошибка загрузки каналов');
+        }
+
+        if (messagesResult.status === 'rejected') {
+          console.warn('⚠️ MainPage: Messages load failed:', messagesResult.reason);
+        } else {
+          console.log('✅ MainPage: Messages loaded:', messagesResult.value.length, 'items');
+        }
+
+        setDataLoaded(true);
+        console.log('🎉 MainPage: Data loading completed');
+
+      } catch (error) {
+        console.error('💥 MainPage: Error loading data:', error);
+        setLoadError(error.message);
+        setDataLoaded(true);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      loadData();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [dispatch, isAuthenticated, navigate]);
 
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
@@ -96,11 +97,6 @@ const MainPage = () => {
     }, 1000);
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate('/login');
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="h-100 bg-light d-flex justify-content-center align-items-center">
@@ -115,17 +111,7 @@ const MainPage = () => {
   if (loadError) {
     return (
       <div className="h-100 bg-light">
-        <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
-          <div className="container-fluid">
-            <a className="navbar-brand" href="/">Hexlet Chat</a>
-            <div className="navbar-nav ms-auto">
-              <span className="navbar-text me-3">Привет, {username}!</span>
-              <Button variant="outline-primary" onClick={handleLogout}>
-                Выйти
-              </Button>
-            </div>
-          </div>
-        </nav>
+        <Header /> {/* Используем Header вместо старой навигации */}
         <div className="d-flex justify-content-center align-items-center h-100">
           <Alert variant="danger" className="text-center">
             <h5>Ошибка загрузки данных</h5>
@@ -134,7 +120,7 @@ const MainPage = () => {
               <Button variant="outline-danger" onClick={handleReload} className="me-2">
                 Попробовать снова
               </Button>
-              <Button variant="outline-primary" onClick={handleLogout}>
+              <Button variant="outline-primary" onClick={() => dispatch(logout())}>
                 Выйти
               </Button>
             </div>
@@ -148,11 +134,7 @@ const MainPage = () => {
   if (!dataLoaded) {
     return (
       <div className="h-100 bg-light">
-        <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
-          <div className="container-fluid">
-            <a className="navbar-brand" href="/">Hexlet Chat</a>
-          </div>
-        </nav>
+        <Header /> {/* Используем Header вместо старой навигации */}
         <div className="d-flex justify-content-center align-items-center h-100">
           <div className="text-center">
             <Spinner animation="border" role="status" className="mb-3">
@@ -167,20 +149,11 @@ const MainPage = () => {
 
   return (
     <div className="h-100 bg-light">
-      <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
-        <div className="container-fluid">
-          <a className="navbar-brand" href="/">Hexlet Chat</a>
-          <div className="navbar-nav ms-auto">
-            <span className="navbar-text me-3">Привет, {username}!</span>
-            <Button variant="outline-primary" onClick={handleLogout}>
-              Выйти
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Header /> {/* Используем Header вместо старой навигации */}
 
       <ConnectionStatus />
-<TestMessageForm />
+      <TestMessageForm />
+
       <Container fluid className="h-100">
         <Row className="h-100">
           <Col md={3} className="border-end bg-white">

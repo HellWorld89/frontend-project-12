@@ -1,44 +1,23 @@
-import { Container } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Container, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import Header from './Header';
 
 const NotFoundPage = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="h-100 bg-light">
-      <nav className="shadow-sm navbar navbar-expand-lg navbar-light bg-white">
-        <div className="container">
-          <a className="navbar-brand" href="/">Hexlet Chat</a>
+      <Header />
+      <Container className="h-100 d-flex justify-content-center align-items-center">
+        <div className="text-center">
+          <h1 className="display-1 text-muted">404</h1>
+          <h2 className="mb-4">Страница не найдена</h2>
+          <p className="text-muted mb-4">
+            Извините, запрашиваемая страница не существует.
+          </p>
+          <Button as={Link} to="/" variant="primary">
+            Вернуться на главную
+          </Button>
         </div>
-      </nav>
-
-      <div className="h-100">
-        <Container fluid className="h-100">
-          <div className="d-flex flex-column h-100 justify-content-center">
-            <div className="text-center">
-              <div className="mb-4">
-                <img
-                  alt="Страница не найдена"
-                  className="img-fluid"
-                  style={{
-                    maxWidth: 'min(300px, 70vw)',
-                    height: 'auto',
-                    maxHeight: '200px'
-                  }}
-                  src="/assets/404-D_FLHmTM.svg"
-                />
-              </div>
-              <h1 className="h4 text-muted">Страница не найдена</h1>
-              <p className="text-muted">
-                Но вы можете перейти <a href="/" onClick={(e) => {
-                  e.preventDefault();
-                  navigate('/');
-                }}>на главную страницу</a>
-              </p>
-            </div>
-          </div>
-        </Container>
-      </div>
+      </Container>
     </div>
   );
 };

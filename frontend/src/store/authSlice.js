@@ -9,7 +9,8 @@ export const loginUser = createAsyncThunk(
       const response = await axios.post('/api/v1/login', {
         username,
         password,
-      });
+      }
+      );
 
       // Согласно документации, сервер возвращает { token: ..., username: ... }
       const { token, username: userUsername } = response.data;
@@ -22,8 +23,39 @@ export const loginUser = createAsyncThunk(
     } catch (error) {
       // Более детальная обработка ошибок
       const errorMessage = error.response?.data?.message ||
-                          error.response?.statusText ||
-                          'Ошибка авторизации';
+        error.response?.statusText ||
+        'Ошибка авторизации';
+      return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  'auth/register',
+  async ({ username, password }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post('/api/v1/signup', {
+        username,
+        password,
+      });
+
+      // Согласно документации, сервер возвращает { token: ..., username: ... }
+      const { token, username: userUsername } = response.data;
+
+      // Сохраняем токен в localStorage
+      localStorage.setItem('token', token);
+      localStorage.setItem('username', userUsername);
+
+      return { token, username: userUsername };
+    } catch (error) {
+      // Обработка ошибок регистрации
+      if (error.response?.status === 409) {
+        return rejectWithValue('Пользователь с таким именем уже существует');
+      }
+
+      const errorMessage = error.response?.data?.message ||
+        error.response?.statusText ||
+        'Ошибка регистрации';
       return rejectWithValue(errorMessage);
     }
   }
@@ -70,6 +102,22 @@ const authSlice = createSlice({
         state.token = null;
         state.username = null;
         state.isAuthenticated = false;
+      })
+       .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.token = action.payload.token;
+        state.username = action.payload.username;
+        state.isAuthenticated = true;
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        // Не сбрасываем токен при ошибке регистрации, так как пользователь мог быть уже авторизован
       });
   },
 });
