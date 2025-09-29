@@ -2,6 +2,7 @@ import { Navbar, Nav, Button, Container } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store/authSlice';
+import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const dispatch = useDispatch();

@@ -2,33 +2,35 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Card, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { registerUser } from '../store/authSlice';
 import Header from './Header';
-
-// Схема валидации
-const signupSchema = yup.object().shape({
-  username: yup
-    .string()
-    .min(3, 'Имя пользователя должно быть от 3 до 20 символов')
-    .max(20, 'Имя пользователя должно быть от 3 до 20 символов')
-    .required('Обязательное поле'),
-  password: yup
-    .string()
-    .min(6, 'Пароль должен быть не менее 6 символов')
-    .required('Обязательное поле'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password'), null], 'Пароли должны совпадать')
-    .required('Обязательное поле'),
-});
 
 const SignupPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
   const [showError, setShowError] = useState(false);
+  const { t } = useTranslation();
+
+  // Схема валидации
+  const signupSchema = yup.object().shape({
+    username: yup
+      .string()
+      .min(3, t('validation.usernameLength'))
+      .max(20, t('validation.usernameLength'))
+      .required(t('validation.required')),
+    password: yup
+      .string()
+      .min(6, t('validation.passwordMin'))
+      .required(t('validation.required')),
+    confirmPassword: yup
+      .string()
+      .oneOf([yup.ref('password'), null], t('validation.passwordsMatch'))
+      .required(t('validation.required')),
+  });
 
   // Редирект если уже авторизован
   useEffect(() => {
@@ -48,19 +50,15 @@ const SignupPage = () => {
     setShowError(false);
 
     try {
-      // Отправляем только username и password, confirmPassword не нужен серверу
       const result = await dispatch(registerUser({
         username: values.username,
         password: values.password,
       })).unwrap();
 
-      // После успешной регистрации автоматически логинимся
       console.log('✅ Registration successful:', result);
-      // Редирект произойдет автоматически из-за изменения isAuthenticated
 
     } catch (error) {
       console.error('❌ Registration failed:', error);
-      // Ошибка уже будет в состоянии Redux
     } finally {
       setSubmitting(false);
     }
@@ -74,7 +72,7 @@ const SignupPage = () => {
           <Col xs={12} md={8} lg={6}>
             <Card className="shadow-sm">
               <Card.Body className="p-5">
-                <h1 className="text-center mb-4">Регистрация</h1>
+                <h1 className="text-center mb-4">{t('auth.register')}</h1>
 
                 {showError && error && (
                   <Alert
@@ -107,7 +105,7 @@ const SignupPage = () => {
                   }) => (
                     <Form onSubmit={handleSubmit}>
                       <Form.Group className="mb-3">
-                        <Form.Label htmlFor="username">Имя пользователя</Form.Label>
+                        <Form.Label htmlFor="username">{t('auth.username')}</Form.Label>
                         <Form.Control
                           type="text"
                           name="username"
@@ -117,7 +115,7 @@ const SignupPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.username && !!errors.username}
                           disabled={loading}
-                          placeholder="Введите имя пользователя (3-20 символов)"
+                          placeholder={t('validation.usernameLength')}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.username}
@@ -125,7 +123,7 @@ const SignupPage = () => {
                       </Form.Group>
 
                       <Form.Group className="mb-3">
-                        <Form.Label htmlFor="password">Пароль</Form.Label>
+                        <Form.Label htmlFor="password">{t('auth.password')}</Form.Label>
                         <Form.Control
                           type="password"
                           name="password"
@@ -135,7 +133,7 @@ const SignupPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.password && !!errors.password}
                           disabled={loading}
-                          placeholder="Введите пароль (не менее 6 символов)"
+                          placeholder={t('validation.passwordMin')}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.password}
@@ -143,7 +141,7 @@ const SignupPage = () => {
                       </Form.Group>
 
                       <Form.Group className="mb-4">
-                        <Form.Label htmlFor="confirmPassword">Подтверждение пароля</Form.Label>
+                        <Form.Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Form.Label>
                         <Form.Control
                           type="password"
                           name="confirmPassword"
@@ -153,7 +151,7 @@ const SignupPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.confirmPassword && !!errors.confirmPassword}
                           disabled={loading}
-                          placeholder="Повторите пароль"
+                          placeholder={t('validation.passwordsMatch')}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.confirmPassword}
@@ -176,10 +174,10 @@ const SignupPage = () => {
                               aria-hidden="true"
                               className="me-2"
                             />
-                            Регистрируем...
+                            {t('common.loading')}
                           </>
                         ) : (
-                          'Зарегистрироваться'
+                          t('auth.signUp')
                         )}
                       </Button>
                     </Form>
@@ -188,9 +186,9 @@ const SignupPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    Уже есть аккаунт?{' '}
+                    {t('auth.haveAccount')}{' '}
                     <Link to="/login" className="text-decoration-none">
-                      Войти
+                      {t('auth.signIn')}
                     </Link>
                   </p>
                 </div>
