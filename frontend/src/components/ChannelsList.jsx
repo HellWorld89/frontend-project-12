@@ -1,7 +1,7 @@
-// components/ChannelsList.jsx
 import React, { useState } from 'react';
 import { ListGroup, Dropdown } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { setCurrentChannel } from '../store/channelsSlice';
 import AddChannelModal from './modals/AddChannelModal';
 import RenameChannelModal from './modals/RenameChannelModal';
@@ -9,6 +9,7 @@ import DeleteChannelModal from './modals/DeleteChannelModal';
 
 const ChannelsList = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { items: channels, currentChannelId } = useSelector((state) => state.channels);
   const { username } = useSelector((state) => state.auth);
 
@@ -61,12 +62,12 @@ const ChannelsList = () => {
   return (
     <div className="channels-list">
       <div className="d-flex justify-content-between align-items-center mb-2 ps-3 pe-2">
-        <span className="fw-bold">Каналы</span>
+        <span className="fw-bold">{t('channels.channels')}</span>
         <button
           type="button"
           className="btn btn-sm btn-outline-primary"
           onClick={() => setShowAddModal(true)}
-          title="Добавить канал"
+          title={t('channels.addChannel')}
         >
           +
         </button>
@@ -76,7 +77,7 @@ const ChannelsList = () => {
         {channels.map((channel) => (
           <ListGroup.Item
             key={channel.id}
-            as="div" // Меняем на div чтобы избежать вложенных button
+            as="div"
             role="button"
             tabIndex={0}
             active={channel.id === currentChannelId}
@@ -111,7 +112,7 @@ const ChannelsList = () => {
                     className="d-flex align-items-center border-0 bg-transparent"
                   >
                     <i className="bi bi-pencil me-2"></i>
-                    Переименовать
+                    {t('channels.rename')}
                   </Dropdown.Item>
                   <Dropdown.Item
                     as="button"
@@ -119,7 +120,7 @@ const ChannelsList = () => {
                     className="d-flex align-items-center text-danger border-0 bg-transparent"
                   >
                     <i className="bi bi-trash me-2"></i>
-                    Удалить
+                    {t('channels.delete')}
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>

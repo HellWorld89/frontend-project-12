@@ -2,18 +2,20 @@ import { useState, useEffect } from 'react';
 import { Form, Button, Card, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { loginUser, clearError } from '../store/authSlice';
-import Header from './Header'; // Добавляем импорт Header
+import Header from './Header';
 
 // Схема валидации
 const loginSchema = yup.object().shape({
-  username: yup.string().required('Обязательное поле'),
-  password: yup.string().required('Обязательное поле'),
+  username: yup.string().required('validation.required'),
+  password: yup.string().required('validation.required'),
 });
 
 const LoginPage = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
@@ -48,13 +50,13 @@ const LoginPage = () => {
 
   return (
     <div className="h-100 bg-light">
-      <Header /> {/* Добавляем Header */}
+      <Header />
       <Container className="h-100">
         <Row className="justify-content-center align-items-center h-100">
           <Col xs={12} md={8} lg={6}>
             <Card className="shadow-sm">
               <Card.Body className="p-5">
-                <h1 className="text-center mb-4">Вход</h1>
+                <h1 className="text-center mb-4">{t('auth.login')}</h1>
 
                 {showError && error && (
                   <Alert
@@ -83,7 +85,7 @@ const LoginPage = () => {
                   }) => (
                     <Form onSubmit={handleSubmit}>
                       <Form.Group className="mb-3">
-                        <Form.Label htmlFor="username">Имя пользователя</Form.Label>
+                        <Form.Label htmlFor="username">{t('auth.username')}</Form.Label>
                         <Form.Control
                           type="text"
                           name="username"
@@ -95,12 +97,12 @@ const LoginPage = () => {
                           disabled={loading}
                         />
                         <Form.Control.Feedback type="invalid">
-                          {errors.username}
+                          {t(errors.username)}
                         </Form.Control.Feedback>
                       </Form.Group>
 
                       <Form.Group className="mb-4">
-                        <Form.Label htmlFor="password">Пароль</Form.Label>
+                        <Form.Label htmlFor="password">{t('auth.password')}</Form.Label>
                         <Form.Control
                           type="password"
                           name="password"
@@ -112,7 +114,7 @@ const LoginPage = () => {
                           disabled={loading}
                         />
                         <Form.Control.Feedback type="invalid">
-                          {errors.password}
+                          {t(errors.password)}
                         </Form.Control.Feedback>
                       </Form.Group>
 
@@ -132,10 +134,10 @@ const LoginPage = () => {
                               aria-hidden="true"
                               className="me-2"
                             />
-                            Входим...
+                            {t('common.loading')}
                           </>
                         ) : (
-                          'Войти'
+                          t('auth.signIn')
                         )}
                       </Button>
                     </Form>
@@ -144,9 +146,9 @@ const LoginPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    Нет аккаунта?{' '}
+                    {t('auth.noAccount')}{' '}
                     <Link to="/signup" className="text-decoration-none">
-                      Зарегистрироваться
+                      {t('auth.signUp')}
                     </Link>
                   </p>
                 </div>

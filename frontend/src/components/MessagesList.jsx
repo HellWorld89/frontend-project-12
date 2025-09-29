@@ -1,11 +1,12 @@
-// components/MessagesList.jsx
 import { useEffect, useRef } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 const MessagesList = () => {
+  const { t } = useTranslation();
   const { items: messages } = useSelector((state) => state.messages);
-  const { currentChannelId } = useSelector((state) => state.channels);
+  const { currentChannelId, items: channels } = useSelector((state) => state.channels);
   const messagesEndRef = useRef(null);
 
   // Фильтруем сообщения по текущему каналу
@@ -25,19 +26,19 @@ const MessagesList = () => {
     messages: filteredMessages
   });
 
+  const currentChannel = channels.find(ch => ch.id === currentChannelId);
+
   if (!currentChannelId) {
-    return <div className="p-3">Выберите канал для просмотра сообщений</div>;
+    return <div className="p-3">{t('messages.selectChannel')}</div>;
   }
 
   return (
     <div className="messages-list d-flex flex-column h-100">
       <div className="messages-header border-bottom p-3">
-        <h5 className="mb-0">
-          # {useSelector((state) =>
-            state.channels.items.find(ch => ch.id === currentChannelId)?.name || ''
-          )}
-        </h5>
-        <small className="text-muted">{filteredMessages.length} сообщений</small>
+        <h5 className="mb-0"># {currentChannel?.name || ''}</h5>
+        <small className="text-muted">
+          {t('messages.messageCount', { count: filteredMessages.length })}
+        </small>
       </div>
 
       <div className="messages-content flex-grow-1 p-3" style={{ overflowY: 'auto' }}>
@@ -47,7 +48,7 @@ const MessagesList = () => {
               <div className="message">
                 <strong>{message.username}:</strong>
                 <span className="ms-2">{message.body}</span>
-                {message.tempId && <small className="text-muted ms-2">(отправляется...)</small>}
+                {message.tempId && <small className="text-muted ms-2">({t('messages.sending')})</small>}
               </div>
             </ListGroup.Item>
           ))}

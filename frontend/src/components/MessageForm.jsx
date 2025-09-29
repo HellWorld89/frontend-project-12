@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Form, Button, InputGroup, Alert, Badge } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   sendMessage,
   addPendingMessage,
@@ -16,6 +17,7 @@ const MessageForm = () => {
   const [infoMessage, setInfoMessage] = useState(null);
 
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { currentChannelId } = useSelector((state) => state.channels);
   const { pendingMessages } = useSelector((state) => state.messages);
   const username = useSelector((state) => state.auth.username);
@@ -41,46 +43,44 @@ const MessageForm = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!canSendMessage()) return;
+    if (!canSendMessage()) return;
 
-  setIsSending(true);
-  setError(null);
-  setInfoMessage(null);
+    setIsSending(true);
+    setError(null);
+    setInfoMessage(null);
 
-  try {
-    // ✅ Отправляем через Redux action (HTTP)
-    await dispatch(sendMessage({
-      body: messageText.trim(),
-      channelId: currentChannelId,
-    })).unwrap();
+    try {
+      await dispatch(sendMessage({
+        body: messageText.trim(),
+        channelId: currentChannelId,
+      })).unwrap();
 
-    setMessageText('');
-    console.log('✅ MessageForm: Message sent via HTTP');
+      setMessageText('');
+      console.log('✅ MessageForm: Message sent via HTTP');
 
-  } catch (error) {
-    console.error('Send message error:', error);
+    } catch (error) {
+      console.error('Send message error:', error);
 
-    // Если ошибка при отправке, добавляем в очередь
-    const tempId = generateTempId();
-    dispatch(addPendingMessage({
-      body: messageText.trim(),
-      channelId: currentChannelId,
-      username,
-      tempId: tempId,
-      timestamp: Date.now(),
-      attempts: 0,
-      lastAttempt: 0,
-      isSending: false,
-    }));
+      const tempId = generateTempId();
+      dispatch(addPendingMessage({
+        body: messageText.trim(),
+        channelId: currentChannelId,
+        username,
+        tempId: tempId,
+        timestamp: Date.now(),
+        attempts: 0,
+        lastAttempt: 0,
+        isSending: false,
+      }));
 
-    setMessageText('');
-    setInfoMessage('⚠️ Сообщение добавлено в очередь из-за ошибки отправки');
-  } finally {
-    setIsSending(false);
-  }
-};
+      setMessageText('');
+      setInfoMessage(t('messages.errorSending'));
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -102,7 +102,6 @@ const MessageForm = () => {
         isSending: true
       }));
 
-      // ✅ ПРАВИЛЬНЫЙ ПОДХОД: используем Redux action
       await dispatch(sendMessage({
         body: message.body,
         channelId: message.channelId || currentChannelId,
@@ -144,7 +143,7 @@ const MessageForm = () => {
       {pendingMessages.length > 0 && (
         <div className="mb-2">
           <Badge bg="warning" text="dark" className="mb-2">
-            📋 В очереди: {pendingMessages.length} сообщений
+            📋 {t('messages.pending', { count: pendingMessages.length })}
           </Badge>
 
           {/* Детализация сообщений в очереди */}
@@ -154,7 +153,7 @@ const MessageForm = () => {
                 <span>
                   {message.isSending ? '🔄' : '⏳'}
                   {message.body.length > 30 ? message.body.substring(0, 30) + '...' : message.body}
-                  {message.attempts > 0 && ` (попытка ${message.attempts}/3)`}
+                  {message.attempts > 0 && ` (${t('messages.attempt', { attempt: message.attempts })})`}
                 </span>
                 <div>
                   <Button
@@ -163,7 +162,7 @@ const MessageForm = () => {
                     className="me-1"
                     onClick={() => handleRetryMessage(message)}
                     disabled={message.isSending}
-                    title="Повторить попытку"
+                    title={t('messages.retry')}
                   >
                     🔄
                   </Button>
@@ -171,7 +170,7 @@ const MessageForm = () => {
                     variant="outline-danger"
                     size="sm"
                     onClick={() => handleRemovePendingMessage(message.tempId)}
-                    title="Удалить из очереди"
+                    title={t('messages.removeFromQueue')}
                   >
                     ❌
                   </Button>
@@ -181,7 +180,7 @@ const MessageForm = () => {
           ))}
           {pendingMessages.length > 3 && (
             <div className="small text-muted">
-              ... и еще {pendingMessages.length - 3} сообщений
+              {t('messages.moreMessages', { count: pendingMessages.length - 3 })}
             </div>
           )}
         </div>
@@ -192,7 +191,7 @@ const MessageForm = () => {
         <InputGroup>
           <Form.Control
             type="text"
-            placeholder="Введите сообщение..."
+            placeholder={t('messages.enterMessage')}
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
@@ -203,7 +202,7 @@ const MessageForm = () => {
             variant="primary"
             disabled={!canSendMessage()}
           >
-            {isSending ? '📤 Отправка...' : '📤 Отправить'}
+            {isSending ? `📤 ${t('messages.sending')}` : `📤 ${t('common.send')}`}
           </Button>
         </InputGroup>
       </Form>

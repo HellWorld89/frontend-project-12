@@ -1,10 +1,11 @@
-// components/modals/DeleteChannelModal.jsx
 import { Modal, Button, Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { deleteChannel, resetOperationStatus } from '../../store/channelsSlice';
 
 const DeleteChannelModal = ({ show, onHide, channel }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const { operationStatus } = useSelector((state) => state.channels);
   const { currentChannelId } = useSelector((state) => state.channels);
 
@@ -27,12 +28,12 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
   if (!channel) return null;
 
   const isCurrentChannel = channel.id === currentChannelId;
-  const isRemovable = channel.removable !== false; // Предполагаем, что сервер указывает, можно ли удалять канал
+  const isRemovable = channel.removable !== false;
 
   return (
     <Modal show={show} onHide={handleHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Удалить канал</Modal.Title>
+        <Modal.Title>{t('channels.deleteChannel')}</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>
@@ -44,14 +45,14 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
 
         {!isRemovable ? (
           <Alert variant="warning">
-            Этот канал нельзя удалить.
+            {t('channels.cannotDelete')}
           </Alert>
         ) : (
           <>
-            <p>Уверены, что хотите удалить канал <strong>#{channel.name}</strong>?</p>
+            <p>{t('channels.confirmDelete', { channelName: channel.name })}</p>
             {isCurrentChannel && (
               <Alert variant="info" className="mb-0">
-                Вы находитесь в этом канале. После удаления вы будете перемещены в общий канал.
+                {t('channels.currentChannelWarning')}
               </Alert>
             )}
           </>
@@ -64,7 +65,7 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
           onClick={handleHide}
           disabled={operationStatus.loading}
         >
-          Отменить
+          {t('common.cancel')}
         </Button>
 
         {isRemovable && (
@@ -76,10 +77,10 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
             {operationStatus.loading ? (
               <>
                 <span className="spinner-border spinner-border-sm me-2" />
-                Удаляем...
+                {t('channels.deleting')}
               </>
             ) : (
-              'Удалить'
+              t('channels.delete')
             )}
           </Button>
         )}

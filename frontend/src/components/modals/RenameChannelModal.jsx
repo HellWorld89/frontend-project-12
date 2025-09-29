@@ -1,13 +1,14 @@
-// components/modals/RenameChannelModal.jsx
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { renameChannel, resetOperationStatus } from '../../store/channelsSlice';
 
 const RenameChannelModal = ({ show, onHide, channel }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const { items: channels } = useSelector((state) => state.channels);
   const { operationStatus } = useSelector((state) => state.channels);
@@ -15,7 +16,6 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
 
   useEffect(() => {
     if (show && channel) {
-      // Сохраняем имена каналов, исключая текущий переименовываемый
       const names = channels
         .filter(ch => ch.id !== channel.id)
         .map(ch => ch.name.toLowerCase());
@@ -32,19 +32,18 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
     }
   }, [show, channel, channels, dispatch]);
 
-  // Схема валидации для переименования
   const getValidationSchema = () => {
     return yup.object().shape({
       name: yup
         .string()
-        .min(3, 'Название канала должно быть от 3 до 20 символов')
-        .max(20, 'Название канала должно быть от 3 до 20 символов')
+        .min(3, t('validation.channelNameLength'))
+        .max(20, t('validation.channelNameLength'))
         .test(
           'unique-name',
-          'Канал с таким именем уже существует',
+          t('validation.channelNameUnique'),
           (value) => !channelNamesOnOpen.has(value.toLowerCase())
         )
-        .required('Обязательное поле'),
+        .required(t('validation.required')),
     });
   };
 
@@ -72,7 +71,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
   return (
     <Modal show={show} onHide={handleHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Переименовать канал</Modal.Title>
+        <Modal.Title>{t('channels.renameChannel')}</Modal.Title>
       </Modal.Header>
 
       <Formik
@@ -104,7 +103,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                 )}
 
                 <Form.Group className="mb-3">
-                  <Form.Label htmlFor="name">Имя канала</Form.Label>
+                  <Form.Label htmlFor="name">{t('channels.channelName')}</Form.Label>
                   <Form.Control
                     ref={inputRef}
                     type="text"
@@ -121,14 +120,14 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                         handleSubmit();
                       }
                     }}
-                    placeholder="Введите новое название канала"
+                    placeholder={t('validation.channelNameLength')}
                   />
                   <Form.Control.Feedback type="invalid">
-                    {errors.name}
+                    {t(errors.name)}
                   </Form.Control.Feedback>
                   {!errors.name && values.name.length > 0 && isChanged && (
                     <Form.Text className="text-muted">
-                      ✓ Название доступно
+                      ✓ {t('channels.nameAvailable')}
                     </Form.Text>
                   )}
                 </Form.Group>
@@ -140,7 +139,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                   onClick={handleHide}
                   disabled={isSubmitting || operationStatus.loading}
                 >
-                  Отменить
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   variant="primary"
@@ -156,10 +155,10 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                   {(isSubmitting || operationStatus.loading) ? (
                     <>
                       <span className="spinner-border spinner-border-sm me-2" />
-                      Переименовываем...
+                      {t('channels.renaming')}
                     </>
                   ) : (
-                    'Переименовать'
+                    t('channels.rename')
                   )}
                 </Button>
               </Modal.Footer>

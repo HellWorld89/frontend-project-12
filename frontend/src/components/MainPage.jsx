@@ -1,8 +1,8 @@
-// components/MainPage.jsx
 import { useEffect, useState } from 'react';
 import { Container, Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { logout } from '../store/authSlice';
 import { fetchChannels, setCurrentChannel } from '../store/channelsSlice';
 import { fetchMessages } from '../store/messagesSlice';
@@ -13,11 +13,12 @@ import ChannelsList from './ChannelsList';
 import MessagesList from './MessagesList';
 import MessageForm from './MessageForm';
 import ConnectionStatus from './ConnectionStatus';
-import Header from './Header'; // Добавляем импорт Header
+import Header from './Header';
 
 const MainPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isAuthenticated, username } = useSelector((state) => state.auth);
   const { items: channels, currentChannelId, loading: channelsLoading, error: channelsError } = useSelector((state) => state.channels);
   const { items: messages, loading: messagesLoading, error: messagesError } = useSelector((state) => state.messages);
@@ -50,7 +51,7 @@ const MainPage = () => {
         });
 
         if (channelsResult.status === 'rejected') {
-          throw new Error(channelsResult.reason || 'Ошибка загрузки каналов');
+          throw new Error(channelsResult.reason || t('errors.loadError'));
         }
 
         if (messagesResult.status === 'rejected') {
@@ -74,7 +75,7 @@ const MainPage = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [dispatch, isAuthenticated, navigate]);
+  }, [dispatch, isAuthenticated, navigate, t]);
 
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
@@ -89,7 +90,6 @@ const MainPage = () => {
   const handleReload = () => {
     setDataLoaded(false);
     setLoadError(null);
-    // Перезагружаем данные
     setTimeout(() => {
       dispatch(fetchChannels());
       dispatch(fetchMessages());
@@ -101,7 +101,7 @@ const MainPage = () => {
     return (
       <div className="h-100 bg-light d-flex justify-content-center align-items-center">
         <Spinner animation="border" role="status">
-          <span className="visually-hidden">Перенаправление...</span>
+          <span className="visually-hidden">{t('common.loading')}</span>
         </Spinner>
       </div>
     );
@@ -111,17 +111,17 @@ const MainPage = () => {
   if (loadError) {
     return (
       <div className="h-100 bg-light">
-        <Header /> {/* Используем Header вместо старой навигации */}
+        <Header />
         <div className="d-flex justify-content-center align-items-center h-100">
           <Alert variant="danger" className="text-center">
-            <h5>Ошибка загрузки данных</h5>
+            <h5>{t('errors.loadError')}</h5>
             <p>{loadError}</p>
             <div className="mt-3">
               <Button variant="outline-danger" onClick={handleReload} className="me-2">
-                Попробовать снова
+                {t('errors.tryAgain')}
               </Button>
               <Button variant="outline-primary" onClick={() => dispatch(logout())}>
-                Выйти
+                {t('auth.logout')}
               </Button>
             </div>
           </Alert>
@@ -134,13 +134,13 @@ const MainPage = () => {
   if (!dataLoaded) {
     return (
       <div className="h-100 bg-light">
-        <Header /> {/* Используем Header вместо старой навигации */}
+        <Header />
         <div className="d-flex justify-content-center align-items-center h-100">
           <div className="text-center">
             <Spinner animation="border" role="status" className="mb-3">
-              <span className="visually-hidden">Загрузка чата...</span>
+              <span className="visually-hidden">{t('common.loading')}</span>
             </Spinner>
-            <p>Загрузка чата...</p>
+            <p>{t('common.loading')}</p>
           </div>
         </div>
       </div>
@@ -149,7 +149,7 @@ const MainPage = () => {
 
   return (
     <div className="h-100 bg-light">
-      <Header /> {/* Используем Header вместо старой навигации */}
+      <Header />
 
       <ConnectionStatus />
       <TestMessageForm />

@@ -1,9 +1,10 @@
-// components/ConnectionStatus.jsx
 import { Alert } from 'react-bootstrap';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import socketService from '../services/socket';
 
 const ConnectionStatus = () => {
+  const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
@@ -40,11 +41,11 @@ const ConnectionStatus = () => {
       className="m-0 py-2 text-center"
     >
       {!isOnline ? (
-        '⚠️ Отсутствует интернет-соединение'
+        t('errors.connectionLost')
       ) : !isSocketConnected ? (
-        '⚠️ Проблемы с подключением к чату'
+        t('errors.reconnecting')
       ) : (
-        '✅ Подключение восстановлено'
+        t('errors.connected')
       )}
     </Alert>
   );
