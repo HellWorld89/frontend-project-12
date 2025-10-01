@@ -10,7 +10,7 @@ import {
   updatePendingMessage
 } from '../store/messagesSlice';
 import { filterProfanity, hasProfanity } from '../utils/profanityFilter';
-import socketService from '../services/socket';
+import { trackError, trackUserAction } from '../utils/rollbar';
 
 const MessageForm = () => {
   const [messageText, setMessageText] = useState('');
@@ -32,6 +32,11 @@ const MessageForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+      trackUserAction('send_message', {
+    channelId: currentChannelId,
+    messageLength: messageText.length
+  });
 
     if (!canSendMessage()) return;
 
@@ -56,6 +61,12 @@ const MessageForm = () => {
 
     } catch (error) {
       console.error('Send message error:', error);
+
+        trackError(error, {
+      context: 'MessageForm.handleSubmit',
+      channelId: currentChannelId,
+      messageLength: messageText.length
+    });
 
       const tempId = generateTempId();
       dispatch(addPendingMessage({

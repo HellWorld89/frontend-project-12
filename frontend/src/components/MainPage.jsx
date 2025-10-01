@@ -165,7 +165,16 @@ const MainPage = () => {
 
       <ConnectionStatus />
       <TestMessageForm />
-
+    <button
+  onClick={() => {
+    // Тестовая ошибка для проверки Rollbar
+    throw new Error('Test error for Rollbar integration');
+  }}
+  style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 1000 }}
+  className="btn btn-warning btn-sm"
+>
+  Test Rollbar
+</button>
       <Container fluid className="h-100">
         <Row className="h-100">
           <Col md={3} className="border-end bg-white">
