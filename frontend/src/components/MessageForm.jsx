@@ -9,6 +9,7 @@ import {
   removePendingMessage,
   updatePendingMessage
 } from '../store/messagesSlice';
+import { filterProfanity, hasProfanity } from '../utils/profanityFilter';
 import socketService from '../services/socket';
 
 const MessageForm = () => {
@@ -37,8 +38,16 @@ const MessageForm = () => {
     setIsSending(true);
 
     try {
+      // Фильтруем нецензурные слова перед отправкой
+      const filteredMessage = filterProfanity(messageText.trim());
+
+      // Показываем предупреждение если были отфильтрованы слова
+      if (hasProfanity(messageText.trim()) && filteredMessage !== messageText.trim()) {
+        toast.warn(t('profanity.filtered'));
+      }
+
       await dispatch(sendMessage({
-        body: messageText.trim(),
+        body: filteredMessage,
         channelId: currentChannelId,
       })).unwrap();
 

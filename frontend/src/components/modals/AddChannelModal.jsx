@@ -10,6 +10,7 @@ import {
   resetOperationStatus,
   setCurrentChannel
 } from '../../store/channelsSlice';
+import { filterProfanity, hasProfanity } from '../../utils/profanityFilter';
 
 // Храним Set с ID каналов, для которых уже показали уведомление
 const shownChannelIds = new Set();
@@ -88,7 +89,15 @@ const AddChannelModal = ({ show, onHide }) => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      const result = await dispatch(createChannel({ name: values.name })).unwrap();
+      // Фильтруем нецензурные слова в названии канала
+      const filteredName = filterProfanity(values.name);
+
+      // Показываем предупреждение если были отфильтрованы слова
+      if (hasProfanity(values.name) && filteredName !== values.name) {
+        toast.warn(t('profanity.channelNameFiltered'));
+      }
+
+      const result = await dispatch(createChannel({ name: filteredName })).unwrap();
       if (result && result.id) {
         setCreatedChannelId(result.id);
         console.log('✅ Channel creation response received:', result.id);

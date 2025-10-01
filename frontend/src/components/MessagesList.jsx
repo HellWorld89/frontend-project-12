@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { ListGroup } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { filterProfanity } from '../utils/profanityFilter';
 
 const MessagesList = () => {
   const { t } = useTranslation();
@@ -47,7 +48,10 @@ const MessagesList = () => {
             <ListGroup.Item key={message.id || message.tempId} className="border-0 px-0 py-2">
               <div className="message">
                 <strong>{message.username}:</strong>
-                <span className="ms-2">{message.body}</span>
+                <span className="ms-2">
+                  {/* Фильтруем нецензурные слова в отображаемом тексте сообщения */}
+                  {filterProfanity(message.body)}
+                </span>
                 {message.tempId && <small className="text-muted ms-2">({t('messages.sending')})</small>}
               </div>
             </ListGroup.Item>

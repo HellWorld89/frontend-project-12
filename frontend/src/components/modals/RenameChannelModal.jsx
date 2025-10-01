@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
 import { renameChannel, resetOperationStatus } from '../../store/channelsSlice';
+import { filterProfanity, hasProfanity } from '../../utils/profanityFilter';
 
 const RenameChannelModal = ({ show, onHide, channel }) => {
   const dispatch = useDispatch();
@@ -52,7 +53,15 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
     if (!channel) return;
 
     try {
-      await dispatch(renameChannel({ id: channel.id, name: values.name })).unwrap();
+      // Фильтруем нецензурные слова в названии канала
+      const filteredName = filterProfanity(values.name);
+
+      // Показываем предупреждение если были отфильтрованы слова
+      if (hasProfanity(values.name) && filteredName !== values.name) {
+        toast.warn(t('profanity.channelNameFiltered'));
+      }
+
+      await dispatch(renameChannel({ id: channel.id, name: filteredName })).unwrap();
 
       // Показываем toast-уведомление об успешном переименовании
       toast.success(t('toast.channelRenamed'));
