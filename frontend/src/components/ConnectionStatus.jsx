@@ -1,17 +1,35 @@
-import { Alert } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import socketService from '../services/socket';
 
 const ConnectionStatus = () => {
   const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isSocketConnected, setIsSocketConnected] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+
+  // Используем useRef для отслеживания предыдущего состояния
+  const prevOnlineStatus = useRef(isOnline);
+  const prevSocketStatus = useRef(isSocketConnected);
+  const toastIdRef = useRef(null);
 
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      setIsOnline(true);
+      // Показываем toast при восстановлении соединения
+      toast.success(t('toast.connected'), {
+        toastId: 'connection-restored'
+      });
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      // Показываем toast при потере соединения
+      toast.warn(t('toast.connectionLost'), {
+        toastId: 'connection-lost',
+        autoClose: false // Не закрывать автоматически при потере соединения
+      });
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -20,10 +38,22 @@ const ConnectionStatus = () => {
     const interval = setInterval(() => {
       const socket = socketService.getSocket();
       const connected = socket?.connected || false;
-      setIsSocketConnected(connected);
 
-      // Показываем предупреждение если проблемы с соединением
-      setShowAlert(!isOnline || !connected);
+      // Показываем toast только при изменении состояния сокета
+      if (connected !== prevSocketStatus.current) {
+        if (connected) {
+          toast.success(t('toast.connected'), {
+            toastId: 'socket-connected'
+          });
+        } else {
+          toast.warn(t('toast.reconnecting'), {
+            toastId: 'socket-reconnecting'
+          });
+        }
+        prevSocketStatus.current = connected;
+      }
+
+      setIsSocketConnected(connected);
     }, 5000);
 
     return () => {
@@ -31,24 +61,17 @@ const ConnectionStatus = () => {
       window.removeEventListener('offline', handleOffline);
       clearInterval(interval);
     };
+  }, [t]);
+
+  // Следим за изменениями онлайн статуса
+  useEffect(() => {
+    if (isOnline !== prevOnlineStatus.current) {
+      prevOnlineStatus.current = isOnline;
+    }
   }, [isOnline]);
 
-  if (!showAlert) return null;
-
-  return (
-    <Alert
-      variant={isOnline && isSocketConnected ? 'success' : 'warning'}
-      className="m-0 py-2 text-center"
-    >
-      {!isOnline ? (
-        t('errors.connectionLost')
-      ) : !isSocketConnected ? (
-        t('errors.reconnecting')
-      ) : (
-        t('errors.connected')
-      )}
-    </Alert>
-  );
+  // Этот компонент больше не рендерит визуальные элементы
+  return null;
 };
 
 export default ConnectionStatus;

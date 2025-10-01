@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { renameChannel, resetOperationStatus } from '../../store/channelsSlice';
 
 const RenameChannelModal = ({ show, onHide, channel }) => {
@@ -52,10 +53,16 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
 
     try {
       await dispatch(renameChannel({ id: channel.id, name: values.name })).unwrap();
+
+      // Показываем toast-уведомление об успешном переименовании
+      toast.success(t('toast.channelRenamed'));
+
       resetForm();
       onHide();
     } catch (error) {
       console.error('Error renaming channel:', error);
+      // Показываем toast-уведомление об ошибке
+      toast.error(t('toast.error'));
     } finally {
       setSubmitting(false);
     }

@@ -1,6 +1,7 @@
 import { Modal, Button, Alert } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { deleteChannel, resetOperationStatus } from '../../store/channelsSlice';
 
 const DeleteChannelModal = ({ show, onHide, channel }) => {
@@ -14,9 +15,15 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
 
     try {
       await dispatch(deleteChannel(channel.id)).unwrap();
+
+      // Показываем toast-уведомление об успешном удалении
+      toast.success(t('toast.channelDeleted'));
+
       onHide();
     } catch (error) {
       console.error('Error deleting channel:', error);
+      // Показываем toast-уведомление об ошибке
+      toast.error(t('toast.error'));
     }
   };
 

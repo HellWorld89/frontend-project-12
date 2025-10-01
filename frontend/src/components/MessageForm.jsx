@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Form, Button, InputGroup, Alert, Badge } from 'react-bootstrap';
+import { Form, Button, InputGroup, Badge } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import {
   sendMessage,
   addPendingMessage,
@@ -13,26 +14,12 @@ import socketService from '../services/socket';
 const MessageForm = () => {
   const [messageText, setMessageText] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState(null);
-  const [infoMessage, setInfoMessage] = useState(null);
 
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { currentChannelId } = useSelector((state) => state.channels);
   const { pendingMessages } = useSelector((state) => state.messages);
   const username = useSelector((state) => state.auth.username);
-
-  // Автоматически скрываем сообщения
-  useEffect(() => {
-    if (infoMessage || error) {
-      const timer = setTimeout(() => {
-        setInfoMessage(null);
-        setError(null);
-      }, 5000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [infoMessage, error]);
 
   const generateTempId = () => {
     return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -48,8 +35,6 @@ const MessageForm = () => {
     if (!canSendMessage()) return;
 
     setIsSending(true);
-    setError(null);
-    setInfoMessage(null);
 
     try {
       await dispatch(sendMessage({
@@ -76,7 +61,9 @@ const MessageForm = () => {
       }));
 
       setMessageText('');
-      setInfoMessage(t('messages.errorSending'));
+
+      // Показываем toast-уведомление об ошибке отправки
+      toast.warn(t('messages.errorSending'));
     } finally {
       setIsSending(false);
     }
@@ -91,6 +78,8 @@ const MessageForm = () => {
 
   const handleRemovePendingMessage = (tempId) => {
     dispatch(removePendingMessage({ tempId }));
+    // Показываем toast-уведомление об удалении из очереди
+    toast.info(t('messages.removeFromQueue'));
   };
 
   const handleRetryMessage = async (message) => {
@@ -108,6 +97,9 @@ const MessageForm = () => {
       })).unwrap();
 
       dispatch(removePendingMessage({ tempId: message.tempId }));
+
+      // Показываем toast-уведомление об успешной отправке из очереди
+      toast.success(t('messages.sent'));
     } catch (error) {
       console.error('Retry failed:', error);
       dispatch(updatePendingMessage({
@@ -116,6 +108,9 @@ const MessageForm = () => {
         attempts: message.attempts + 1,
         lastAttempt: Date.now()
       }));
+
+      // Показываем toast-уведомление об ошибке повторной отправки
+      toast.error(t('messages.errorSending'));
     }
   };
 
@@ -125,20 +120,6 @@ const MessageForm = () => {
 
   return (
     <div className="message-form border-top p-3">
-      {/* Сообщения об ошибках */}
-      {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      )}
-
-      {/* Информационные сообщения */}
-      {infoMessage && (
-        <Alert variant="info" dismissible onClose={() => setInfoMessage(null)}>
-          {infoMessage}
-        </Alert>
-      )}
-
       {/* Статус очереди сообщений */}
       {pendingMessages.length > 0 && (
         <div className="mb-2">

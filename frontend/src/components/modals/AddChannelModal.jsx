@@ -4,11 +4,15 @@ import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import {
   createChannel,
   resetOperationStatus,
   setCurrentChannel
 } from '../../store/channelsSlice';
+
+// Храним Set с ID каналов, для которых уже показали уведомление
+const shownChannelIds = new Set();
 
 const AddChannelModal = ({ show, onHide }) => {
   const dispatch = useDispatch();
@@ -27,6 +31,18 @@ const AddChannelModal = ({ show, onHide }) => {
 
       if (newChannelExists) {
         console.log('✅ New channel detected in list, switching to it:', createdChannelId);
+
+        // Показываем toast-уведомление только если еще не показывали для этого канала
+        if (!shownChannelIds.has(createdChannelId)) {
+          toast.success(t('toast.channelAdded'));
+          shownChannelIds.add(createdChannelId);
+
+          // Очищаем через некоторое время чтобы не накапливать ID
+          setTimeout(() => {
+            shownChannelIds.delete(createdChannelId);
+          }, 5000);
+        }
+
         dispatch(setCurrentChannel(createdChannelId));
         setTimeout(() => {
           onHide();
@@ -34,7 +50,7 @@ const AddChannelModal = ({ show, onHide }) => {
         }, 300);
       }
     }
-  }, [channels, createdChannelId, show, dispatch, onHide]);
+  }, [channels, createdChannelId, show, dispatch, onHide, t]);
 
   useEffect(() => {
     if (show && inputRef.current) {
@@ -80,6 +96,8 @@ const AddChannelModal = ({ show, onHide }) => {
       resetForm();
     } catch (error) {
       console.error('Error creating channel:', error);
+      // Показываем toast-уведомление об ошибке
+      toast.error(t('toast.error'));
       setSubmitting(false);
     }
   };
@@ -129,12 +147,6 @@ const AddChannelModal = ({ show, onHide }) => {
                     <span className="spinner-border spinner-border-sm me-2" />
                     {t('channels.adding')}
                   </div>
-                </Alert>
-              )}
-
-              {isChannelCreated && (
-                <Alert variant="success" className="mb-3">
-                  ✅ {t('channels.addChannel')}
                 </Alert>
               )}
 

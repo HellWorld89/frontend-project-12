@@ -3,6 +3,7 @@ import { Container, Row, Col, Button, Alert, Spinner } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { logout } from '../store/authSlice';
 import { fetchChannels, setCurrentChannel } from '../store/channelsSlice';
 import { fetchMessages } from '../store/messagesSlice';
@@ -25,6 +26,7 @@ const MainPage = () => {
 
   const [dataLoaded, setDataLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
+  const [errorShown, setErrorShown] = useState(false);
 
   useWebSocket();
   useMessageQueue();
@@ -39,6 +41,7 @@ const MainPage = () => {
       try {
         console.log('🔄 MainPage: Loading channels and messages...');
         setLoadError(null);
+        setErrorShown(false);
 
         const [channelsResult, messagesResult] = await Promise.allSettled([
           dispatch(fetchChannels()).unwrap(),
@@ -56,6 +59,8 @@ const MainPage = () => {
 
         if (messagesResult.status === 'rejected') {
           console.warn('⚠️ MainPage: Messages load failed:', messagesResult.reason);
+          // Показываем toast-уведомление об ошибке загрузки сообщений
+          toast.warn(t('toast.dataLoadError'));
         } else {
           console.log('✅ MainPage: Messages loaded:', messagesResult.value.length, 'items');
         }
@@ -67,6 +72,12 @@ const MainPage = () => {
         console.error('💥 MainPage: Error loading data:', error);
         setLoadError(error.message);
         setDataLoaded(true);
+
+        // Показываем toast-уведомление об ошибке загрузки данных
+        if (!errorShown) {
+          toast.error(t('toast.dataLoadError'));
+          setErrorShown(true);
+        }
       }
     };
 
@@ -75,7 +86,7 @@ const MainPage = () => {
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [dispatch, isAuthenticated, navigate, t]);
+  }, [dispatch, isAuthenticated, navigate, t, errorShown]);
 
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
@@ -90,6 +101,7 @@ const MainPage = () => {
   const handleReload = () => {
     setDataLoaded(false);
     setLoadError(null);
+    setErrorShown(false);
     setTimeout(() => {
       dispatch(fetchChannels());
       dispatch(fetchMessages());
