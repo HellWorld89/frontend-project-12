@@ -1,10 +1,24 @@
-import * as Profanity from 'leo-profanity';
+import Profanity from 'leo-profanity';
 
-// Создаем экземпляр фильтра с русским словарем
+// Создаем экземпляр фильтра
 const profanity = Profanity;
 
-// Загружаем русский словарь нецензурных слов
-profanity.loadDictionary('ru');
+// Инициализируем фильтр с русским словарем
+let dictionaryLoaded = false;
+
+const ensureDictionaryLoaded = () => {
+  if (!dictionaryLoaded) {
+    try {
+      profanity.loadDictionary('ru');
+      dictionaryLoaded = true;
+    } catch (error) {
+      console.warn('Failed to load profanity dictionary:', error);
+      // Создаем пустой словарь в случае ошибки
+      profanity.clearList();
+      dictionaryLoaded = true;
+    }
+  }
+};
 
 /**
  * Фильтрует нецензурные слова в тексте
@@ -14,7 +28,13 @@ profanity.loadDictionary('ru');
 export const filterProfanity = (text) => {
   if (!text || typeof text !== 'string') return text;
 
-  return profanity.clean(text);
+  try {
+    ensureDictionaryLoaded();
+    return profanity.clean(text);
+  } catch (error) {
+    console.warn('Profanity filter error, returning original text:', error);
+    return text;
+  }
 };
 
 /**
@@ -25,7 +45,13 @@ export const filterProfanity = (text) => {
 export const hasProfanity = (text) => {
   if (!text || typeof text !== 'string') return false;
 
-  return profanity.check(text);
+  try {
+    ensureDictionaryLoaded();
+    return profanity.check(text);
+  } catch (error) {
+    console.warn('Profanity check error:', error);
+    return false;
+  }
 };
 
 /**
@@ -36,7 +62,13 @@ export const hasProfanity = (text) => {
 export const getProfanityWords = (text) => {
   if (!text || typeof text !== 'string') return [];
 
-  return profanity.search(text);
+  try {
+    ensureDictionaryLoaded();
+    return profanity.search(text);
+  } catch (error) {
+    console.warn('Profanity search error:', error);
+    return [];
+  }
 };
 
 export default profanity;
