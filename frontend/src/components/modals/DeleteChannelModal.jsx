@@ -14,8 +14,9 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
     if (!channel) return;
 
     try {
+       console.log('🗑️ Starting channel deletion for:', channel.id, channel.name);
       await dispatch(deleteChannel(channel.id)).unwrap();
-
+   console.log('✅ Channel deleted successfully, showing toast...');
       // Показываем toast-уведомление об успешном удалении
       toast.success(t('toast.channelDeleted'));
 
