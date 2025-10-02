@@ -81,6 +81,7 @@ const ChannelsList = () => {
             as="div"
             role="button"
             tabIndex={0}
+            aria-label={`Канал ${filterProfanity(channel.name)}`}
             active={channel.id === currentChannelId}
             onClick={() => dispatch(setCurrentChannel(channel.id))}
             onKeyDown={(e) => {
@@ -97,7 +98,7 @@ const ChannelsList = () => {
           >
             <div className="channel-name flex-grow-1 text-truncate">
               <span className="me-1">#</span>
-              {filterProfanity(channel.name)}
+               <span>{filterProfanity(channel.name)}</span>
             </div>
 
             {canManageChannel(channel) && (
