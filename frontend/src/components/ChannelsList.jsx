@@ -29,6 +29,7 @@ const ChannelsList = () => {
     e.stopPropagation();
     setSelectedChannel(channel);
     setShowDeleteModal(true);
+    console.log('Delete modal should open for channel:', channel.id, channel.name);
   };
 
   const canManageChannel = (channel) => {
