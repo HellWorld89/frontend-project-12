@@ -50,7 +50,7 @@ export const registerUser = createAsyncThunk(
     } catch (error) {
       // Обработка ошибок регистрации
       if (error.response?.status === 409) {
-        return rejectWithValue('Пользователь с таким именем уже существует');
+        return rejectWithValue('Такой пользователь уже существует');
       }
 
       const errorMessage = error.response?.data?.message ||
