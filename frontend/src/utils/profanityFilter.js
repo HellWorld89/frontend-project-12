@@ -1,23 +1,23 @@
-import Profanity from 'leo-profanity';
+import Profanity from 'leo-profanity'
 
 // Создаем экземпляр фильтра
-const profanity = Profanity;
+const profanity = Profanity
 
 // Загружаем английский словарь нецензурных слов (вместо русского)
-profanity.loadDictionary('en');
-profanity.loadDictionary('ru');
+profanity.loadDictionary('en')
+profanity.loadDictionary('ru')
 
-profanity.add(['boobs', 'fuck', 'ass', 'shit', 'piss', 'cunt', 'cock', 'dick', 'penis', 'pussy']);
+profanity.add(['boobs', 'fuck', 'ass', 'shit', 'piss', 'cunt', 'cock', 'dick', 'penis', 'pussy'])
 /**
  * Фильтрует нецензурные слова в тексте
  * @param {string} text - Исходный текст
  * @returns {string} Отфильтрованный текст
  */
 export const filterProfanity = (text) => {
-  if (!text || typeof text !== 'string') return text;
+  if (!text || typeof text !== 'string') return text
 
-  return profanity.clean(text);
-};
+  return profanity.clean(text)
+}
 
 /**
  * Проверяет, содержит ли текст нецензурные слова
@@ -25,10 +25,10 @@ export const filterProfanity = (text) => {
  * @returns {boolean} true если содержит нецензурные слова
  */
 export const hasProfanity = (text) => {
-  if (!text || typeof text !== 'string') return false;
+  if (!text || typeof text !== 'string') return false
 
-  return profanity.check(text);
-};
+  return profanity.check(text)
+}
 
 /**
  * Получает список нецензурных слов из текста
@@ -36,9 +36,9 @@ export const hasProfanity = (text) => {
  * @returns {string[]} Массив нецензурных слов
  */
 export const getProfanityWords = (text) => {
-  if (!text || typeof text !== 'string') return [];
+  if (!text || typeof text !== 'string') return []
 
-  return profanity.search(text);
-};
+  return profanity.search(text)
+}
 
-export default profanity;
+export default profanity
