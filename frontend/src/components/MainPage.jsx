@@ -20,9 +20,8 @@ const MainPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { isAuthenticated, username } = useSelector((state) => state.auth);
-  const { items: channels, currentChannelId, loading: channelsLoading, error: channelsError } = useSelector((state) => state.channels);
-  const { items: messages, loading: messagesLoading, error: messagesError } = useSelector((state) => state.messages);
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { items: channels, currentChannelId } = useSelector((state) => state.channels);
 
   const [dataLoaded, setDataLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
@@ -59,7 +58,6 @@ const MainPage = () => {
 
         if (messagesResult.status === 'rejected') {
           console.warn('⚠️ MainPage: Messages load failed:', messagesResult.reason);
-          // Показываем toast-уведомление об ошибке загрузки сообщений
           toast.warn(t('toast.dataLoadError'));
         } else {
           console.log('✅ MainPage: Messages loaded:', messagesResult.value.length, 'items');
@@ -73,7 +71,6 @@ const MainPage = () => {
         setLoadError(error.message);
         setDataLoaded(true);
 
-        // Показываем toast-уведомление об ошибке загрузки данных
         if (!errorShown) {
           toast.error(t('toast.dataLoadError'));
           setErrorShown(true);
@@ -91,7 +88,7 @@ const MainPage = () => {
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
-      const generalChannel = channels.find(channel => channel.name === 'general') || channels[0];
+      const generalChannel = channels.find((channel) => channel.name === 'general') || channels[0];
       if (generalChannel) {
         dispatch(setCurrentChannel(generalChannel.id));
       }
@@ -159,22 +156,25 @@ const MainPage = () => {
     );
   }
 
+  const handleTestRollbar = () => {
+    // Тестовая ошибка для проверки Rollbar
+    throw new Error('Test error for Rollbar integration');
+  };
+
   return (
     <div className="h-100 bg-light">
       <Header />
 
       <ConnectionStatus />
       <TestMessageForm />
-    <button
-  onClick={() => {
-    // Тестовая ошибка для проверки Rollbar
-    throw new Error('Test error for Rollbar integration');
-  }}
-  style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 1000 }}
-  className="btn btn-warning btn-sm"
->
-  Test Rollbar
-</button>
+      <button
+        onClick={handleTestRollbar}
+        style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 1000 }}
+        className="btn btn-warning btn-sm"
+        type="button"
+      >
+        Test Rollbar
+      </button>
       <Container fluid className="h-100">
         <Row className="h-100">
           <Col md={3} className="border-end bg-white">

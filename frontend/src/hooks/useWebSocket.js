@@ -89,7 +89,7 @@ export const useWebSocket = () => {
 
       // Отписываемся от всех событий
       if (socketInstance) {
-        eventHandlers.current.forEach(handler => {
+        eventHandlers.current.forEach((handler) => {
           socketInstance.off('newMessage', handler);
           socketInstance.off('newChannel', handler);
           socketInstance.off('removeChannel', handler);

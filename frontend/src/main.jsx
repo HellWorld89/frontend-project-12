@@ -30,7 +30,7 @@ const rollbarConfig = {
 };
 
 // Компонент для отображения ошибки
-const ErrorFallback = ({ error, resetError }) => {
+const ErrorFallback = ({ resetError }) => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="text-center">

@@ -27,7 +27,7 @@ const MessagesList = () => {
     messages: filteredMessages
   });
 
-  const currentChannel = channels.find(ch => ch.id === currentChannelId);
+  const currentChannel = channels.find((ch) => ch.id === currentChannelId);
 
   if (!currentChannelId) {
     return <div className="p-3">{t('messages.selectChannel')}</div>;

@@ -14,13 +14,13 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
     if (!channel) return;
 
     try {
-       console.log('🗑️ Starting channel deletion for:', channel.id, channel.name);
+      console.log('🗑️ Starting channel deletion for:', channel.id, channel.name);
       await dispatch(deleteChannel(channel.id)).unwrap();
-   console.log('✅ Channel deleted successfully, showing toast...');
+      console.log('✅ Channel deleted successfully, showing toast...');
       // Показываем toast-уведомление об успешном удалении
       toast.success(t('toast.channelDeleted'), {
-  autoClose: 3000, // Увеличиваем время показа
-});
+        autoClose: 3000, // Увеличиваем время показа
+      });
 
       onHide();
     } catch (error) {
@@ -39,7 +39,7 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
 
   const isCurrentChannel = channel.id === currentChannelId;
   const isRemovable = true;
-console.log('Channel removable status:', isRemovable, channel);
+  console.log('Channel removable status:', isRemovable, channel);
 
   return (
     <Modal show={show} onHide={handleHide} centered>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Form, Button, InputGroup, Badge } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -33,10 +33,10 @@ const MessageForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-      trackUserAction('send_message', {
-    channelId: currentChannelId,
-    messageLength: messageText.length
-  });
+    trackUserAction('send_message', {
+      channelId: currentChannelId,
+      messageLength: messageText.length
+    });
 
     if (!canSendMessage()) return;
 
@@ -62,11 +62,11 @@ const MessageForm = () => {
     } catch (error) {
       console.error('Send message error:', error);
 
-        trackError(error, {
-      context: 'MessageForm.handleSubmit',
-      channelId: currentChannelId,
-      messageLength: messageText.length
-    });
+      trackError(error, {
+        context: 'MessageForm.handleSubmit',
+        channelId: currentChannelId,
+        messageLength: messageText.length
+      });
 
       const tempId = generateTempId();
       dispatch(addPendingMessage({

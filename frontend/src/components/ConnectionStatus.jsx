@@ -11,7 +11,6 @@ const ConnectionStatus = () => {
   // Используем useRef для отслеживания предыдущего состояния
   const prevOnlineStatus = useRef(isOnline);
   const prevSocketStatus = useRef(isSocketConnected);
-  const toastIdRef = useRef(null);
 
   useEffect(() => {
     const handleOnline = () => {

@@ -2,29 +2,26 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import stylistic from '@stylistic/eslint-plugin' // Убедитесь, что пакет установлен
-import { defineConfig, globalIgnores } from 'eslint/config'
+import react from 'eslint-plugin-react'
+import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
-  stylistic.configs.recommended,
+  {
+    ignores: ['dist/**', '**/*.config.js'],
+  },
   {
     files: ['**/*.{js,mjs,cjs,jsx}'],
     plugins: {
-      js,
       'react-hooks': reactHooks,
-      'react-refresh': reactRefresh
+      'react-refresh': reactRefresh,
+      react,
     },
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs['recommended-latest'],
-      reactRefresh.configs.vite,
-    ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
         ...globals.browser,
-        // ...globals.node // раскомментируйте при необходимости
+        ...globals.jest,
+        ...globals.node,
       },
       parserOptions: {
         ecmaVersion: 'latest',
@@ -33,7 +30,46 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      ...reactHooks.configs.recommended.rules,
+      ...react.configs.recommended.rules,
+      'react/react-in-jsx-scope': 'off',
+      'react/prop-types': 'off',
+      'no-unused-vars': ['error', {
+        varsIgnorePattern: '^[A-Z_]',
+        argsIgnorePattern: '^_',
+        ignoreRestSiblings: true
+      }],
+      'react/display-name': 'off',
+
+      // Базовые правила стиля
+      'semi': ['error', 'always'],
+      'comma-dangle': ['error', 'only-multiline'],
+      'indent': ['error', 2],
+      'quotes': ['error', 'single'],
+      'eol-last': ['error', 'always'],
+      'no-multi-spaces': 'error',
+      'arrow-parens': ['error', 'always'],
+      'brace-style': ['error', '1tbs'],
+    },
+    // ДОБАВЬТЕ ЭТОТ БЛОК ДЛЯ НАСТРОЙКИ REACT
+    settings: {
+      react: {
+        version: 'detect', // Автоматически определяет версию React
+      },
+    },
+  },
+  {
+    files: ['**/__tests__/**', '**/*.test.js', '**/*.test.jsx'],
+    rules: {
+      'no-undef': 'off',
+    },
+  },
+  {
+    files: ['**/setupTests.js', '**/vite.config.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
 ])

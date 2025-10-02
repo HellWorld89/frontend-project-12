@@ -27,7 +27,7 @@ export const useMessageQueue = () => {
     try {
       // Создаем копию для безопасной итерации
       const messagesToProcess = [...pendingMessages]
-        .filter(msg => msg.attempts < 3)
+        .filter((msg) => msg.attempts < 3)
         .sort((a, b) => a.timestamp - b.timestamp);
 
       for (const message of messagesToProcess) {
@@ -52,7 +52,7 @@ export const useMessageQueue = () => {
           console.log('Message sent successfully:', message.tempId);
 
           // Небольшая задержка между сообщениями
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
 
         } catch (error) {
           console.error('Failed to send message:', message.tempId, error);

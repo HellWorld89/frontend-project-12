@@ -21,14 +21,13 @@ const AddChannelModal = ({ show, onHide }) => {
   const inputRef = useRef(null);
   const { items: channels } = useSelector((state) => state.channels);
   const { operationStatus } = useSelector((state) => state.channels);
-  const { currentChannelId } = useSelector((state) => state.channels);
 
   const [createdChannelId, setCreatedChannelId] = useState(null);
   const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set());
 
   useEffect(() => {
     if (createdChannelId && show) {
-      const newChannelExists = channels.some(channel => channel.id === createdChannelId);
+      const newChannelExists = channels.some((channel) => channel.id === createdChannelId);
 
       if (newChannelExists) {
         console.log('✅ New channel detected in list, switching to it:', createdChannelId);
@@ -82,7 +81,7 @@ const AddChannelModal = ({ show, onHide }) => {
 
   useEffect(() => {
     if (show) {
-      const names = channels.map(channel => channel.name.toLowerCase());
+      const names = channels.map((channel) => channel.name.toLowerCase());
       setChannelNamesOnOpen(new Set(names));
     }
   }, [show, channels]);
@@ -117,8 +116,8 @@ const AddChannelModal = ({ show, onHide }) => {
     onHide();
   };
 
-  const isWaitingForWebSocket = createdChannelId && !channels.some(ch => ch.id === createdChannelId);
-  const isChannelCreated = createdChannelId && channels.some(ch => ch.id === createdChannelId);
+  const isWaitingForWebSocket = createdChannelId && !channels.some((ch) => ch.id === createdChannelId);
+  const isChannelCreated = createdChannelId && channels.some((ch) => ch.id === createdChannelId);
 
   return (
     <Modal show={show} onHide={handleHide} centered>

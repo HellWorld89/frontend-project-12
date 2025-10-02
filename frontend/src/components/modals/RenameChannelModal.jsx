@@ -19,8 +19,8 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
   useEffect(() => {
     if (show && channel) {
       const names = channels
-        .filter(ch => ch.id !== channel.id)
-        .map(ch => ch.name.toLowerCase());
+        .filter((ch) => ch.id !== channel.id)
+        .map((ch) => ch.name.toLowerCase());
       setChannelNamesOnOpen(new Set(names));
 
       setTimeout(() => {

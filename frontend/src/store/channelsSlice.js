@@ -83,19 +83,19 @@ const channelsSlice = createSlice({
       loading: false,
       error: null,
     },
-     recentlyCreatedChannelId: null,
+    recentlyCreatedChannelId: null,
   },
   reducers: {
     setCurrentChannel: (state, action) => {
       state.currentChannelId = action.payload;
     },
-     clearRecentlyCreatedChannel: (state) => {
+    clearRecentlyCreatedChannel: (state) => {
       state.recentlyCreatedChannelId = null;
     },
     // Добавляем проверку на дубликаты
     addChannelFromServer: (state, action) => {
-      const existingChannel = state.items.find(channel => channel.id === action.payload.id);
-         if (!existingChannel) {
+      const existingChannel = state.items.find((channel) => channel.id === action.payload.id);
+      if (!existingChannel) {
         state.items.push(action.payload);
 
         // ✅ АВТОМАТИЧЕСКОЕ ПЕРЕКЛЮЧЕНИЕ: если это недавно созданный канал
@@ -106,7 +106,7 @@ const channelsSlice = createSlice({
       }
     },
     updateChannelFromServer: (state, action) => {
-      const index = state.items.findIndex(channel => channel.id === action.payload.id);
+      const index = state.items.findIndex((channel) => channel.id === action.payload.id);
       if (index !== -1) {
         // Обновляем только если данные действительно изменились
         if (JSON.stringify(state.items[index]) !== JSON.stringify(action.payload)) {
@@ -115,7 +115,7 @@ const channelsSlice = createSlice({
       }
     },
     removeChannelFromServer: (state, action) => {
-      state.items = state.items.filter(channel => channel.id !== action.payload.id);
+      state.items = state.items.filter((channel) => channel.id !== action.payload.id);
       if (state.currentChannelId === action.payload.id) {
         state.currentChannelId = state.items[0]?.id || null;
       }
@@ -150,10 +150,10 @@ const channelsSlice = createSlice({
           error: null,
         };
       })
-      .addCase(createChannel.fulfilled, (state, action) => {
+      .addCase(createChannel.fulfilled, (state) => {
         state.operationStatus.loading = false;
         // Просто сбрасываем статус загрузки, вся логика в модальном окне
-  console.log('✅ Channel creation HTTP request completed');
+        console.log('✅ Channel creation HTTP request completed');
       })
       .addCase(createChannel.rejected, (state, action) => {
         state.operationStatus = {
@@ -164,11 +164,11 @@ const channelsSlice = createSlice({
         state.recentlyCreatedChannelId = null;
       })
       // Аналогично для renameChannel и deleteChannel
-      .addCase(renameChannel.fulfilled, (state, action) => {
+      .addCase(renameChannel.fulfilled, (state) => {
         state.operationStatus.loading = false;
         // Обновление придет через WebSocket
       })
-      .addCase(deleteChannel.fulfilled, (state, action) => {
+      .addCase(deleteChannel.fulfilled, (state) => {
         state.operationStatus.loading = false;
         // Удаление придет через WebSocket
       });

@@ -36,48 +36,48 @@ const ChannelsList = () => {
     return !channel.creator || channel.creator === username || channel.username === username;
   };
 
-const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-  <button
-    ref={ref}
-    type="button"
-    className="channel-dropdown-toggle btn btn-sm btn-outline-secondary border-0"
-    onClick={(e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      onClick(e);
-    }}
-    style={{
-      color: '#6c757d',
-      cursor: 'pointer',
-      padding: '0.25rem 0.5rem',
-      borderRadius: '3px',
-      display: 'inline-flex',
-      alignItems: 'center',
-      fontSize: '0.8rem',
-      lineHeight: 1,
-      minHeight: '24px'
-    }}
-    onMouseDown={(e) => e.stopPropagation()}
-    aria-label={t('channels.manageChannel')}
-  >
-    <span
-      style={{
-        position: 'absolute',
-        width: '1px',
-        height: '1px',
-        padding: 0,
-        margin: '-1px',
-        overflow: 'hidden',
-        clip: 'rect(0, 0, 0, 0)',
-        whiteSpace: 'nowrap',
-        border: 0
+  const CustomToggle = React.forwardRef(({ _children, onClick }, ref) => (
+    <button
+      ref={ref}
+      type="button"
+      className="channel-dropdown-toggle btn btn-sm btn-outline-secondary border-0"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick(e);
       }}
+      style={{
+        color: '#6c757d',
+        cursor: 'pointer',
+        padding: '0.25rem 0.5rem',
+        borderRadius: '3px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        fontSize: '0.8rem',
+        lineHeight: 1,
+        minHeight: '24px'
+      }}
+      onMouseDown={(e) => e.stopPropagation()}
+      aria-label={t('channels.manageChannel')}
     >
-      {t('channels.manageChannel')}
-    </span>
-    <i className="bi bi-three-dots-vertical"></i>
-  </button>
-));
+      <span
+        style={{
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: 0,
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: 0
+        }}
+      >
+        {t('channels.manageChannel')}
+      </span>
+      <i className="bi bi-three-dots-vertical"></i>
+    </button>
+  ));
 
   return (
     <div className="channels-list">
@@ -117,14 +117,14 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
           >
             <div className="channel-name flex-grow-1 text-truncate">
               <span className="me-1">#</span>
-               <span>{filterProfanity(channel.name)}</span>
+              <span>{filterProfanity(channel.name)}</span>
             </div>
 
             {canManageChannel(channel) && (
               <Dropdown onClick={(e) => e.stopPropagation()}>
                 <Dropdown.Toggle
-                as={CustomToggle}
-                 aria-label="Управление каналом">
+                  as={CustomToggle}
+                  aria-label="Управление каналом">
                   <i className="bi bi-three-dots-vertical"></i>
                 </Dropdown.Toggle>
 
