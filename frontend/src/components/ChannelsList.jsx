@@ -78,7 +78,7 @@ const ChannelsList = () => {
         {channels.map((channel) => (
           <ListGroup.Item
             key={channel.id}
-            as="button" 
+            as="button"
             type="button"
             tabIndex={0}
             aria-label={`Канал ${filterProfanity(channel.name)}`}
@@ -103,7 +103,9 @@ const ChannelsList = () => {
 
             {canManageChannel(channel) && (
               <Dropdown onClick={(e) => e.stopPropagation()}>
-                <Dropdown.Toggle as={CustomToggle}>
+                <Dropdown.Toggle
+                as={CustomToggle}
+                 aria-label="Управление каналом">
                   <i className="bi bi-three-dots-vertical"></i>
                 </Dropdown.Toggle>
 
