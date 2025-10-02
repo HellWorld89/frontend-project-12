@@ -193,6 +193,7 @@ const MessageForm = () => {
           <Form.Control
             type="text"
             placeholder={t('messages.enterMessage')}
+            aria-label={t('messages.enterMessage')}
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
