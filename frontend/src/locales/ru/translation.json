@@ -18,8 +18,8 @@
     "login": "Вход",
     "logout": "Выйти",
     "register": "Регистрация",
-    "username": "Имя пользователя", 
-  "loginUsername": "Ваш ник",
+    "username": "Имя пользователя",
+    "loginUsername": "Ваш ник",
     "password": "Пароль",
     "confirmPassword": "Подтвердите пароль",
     "haveAccount": "Уже есть аккаунт?",
@@ -31,7 +31,8 @@
     "registrationError": "Ошибка регистрации",
     "userExists": "Такой пользователь уже существует",
     "loginSuccess": "Вход выполнен успешно",
-    "registrationSuccess": "Регистрация выполнена успешно"
+    "registrationSuccess": "Регистрация выполнена успешно",
+    "loginError": "Неверные имя пользователя или пароль"
   },
   "validation": {
     "required": "Обязательное поле",
@@ -108,7 +109,7 @@
     "reconnecting": "Переподключение...",
     "connected": "Соединение восстановлено"
   },
-   "profanity": {
+  "profanity": {
     "filtered": "Сообщение было отфильтровано от нецензурных слов",
     "channelNameFiltered": "Название канала было отфильтровано от нецензурных слов"
   }

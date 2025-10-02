@@ -21,6 +21,9 @@ export const loginUser = createAsyncThunk(
 
       return { token, username: userUsername };
     } catch (error) {
+      if (error.response?.status === 401) {
+        return rejectWithValue('Неверные имя пользователя или пароль');
+      }
       // Более детальная обработка ошибок
       const errorMessage = error.response?.data?.message ||
         error.response?.statusText ||
@@ -103,7 +106,7 @@ const authSlice = createSlice({
         state.username = null;
         state.isAuthenticated = false;
       })
-       .addCase(registerUser.pending, (state) => {
+      .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
