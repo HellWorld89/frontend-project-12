@@ -20,7 +20,7 @@
     "register": "Регистрация",
     "username": "Имя пользователя",
     "password": "Пароль",
-    "confirmPassword": "Подтверждение пароля",
+    "confirmPassword": "Подтвердите пароль",
     "haveAccount": "Уже есть аккаунт?",
     "noAccount": "Нет аккаунта?",
     "signIn": "Войти",
