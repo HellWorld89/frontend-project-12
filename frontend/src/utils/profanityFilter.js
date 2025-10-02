@@ -3,23 +3,11 @@ import Profanity from 'leo-profanity';
 // Создаем экземпляр фильтра
 const profanity = Profanity;
 
-// Инициализируем фильтр с русским словарем
-let dictionaryLoaded = false;
+// Загружаем английский словарь нецензурных слов (вместо русского)
+profanity.loadDictionary('en');
+profanity.loadDictionary('ru');
 
-const ensureDictionaryLoaded = () => {
-  if (!dictionaryLoaded) {
-    try {
-      profanity.loadDictionary('ru');
-      dictionaryLoaded = true;
-    } catch (error) {
-      console.warn('Failed to load profanity dictionary:', error);
-      // Создаем пустой словарь в случае ошибки
-      profanity.clearList();
-      dictionaryLoaded = true;
-    }
-  }
-};
-
+profanity.add(['boobs', 'fuck', 'ass', 'shit', 'piss', 'cunt', 'cock', 'dick', 'penis', 'pussy']);
 /**
  * Фильтрует нецензурные слова в тексте
  * @param {string} text - Исходный текст
@@ -28,13 +16,7 @@ const ensureDictionaryLoaded = () => {
 export const filterProfanity = (text) => {
   if (!text || typeof text !== 'string') return text;
 
-  try {
-    ensureDictionaryLoaded();
-    return profanity.clean(text);
-  } catch (error) {
-    console.warn('Profanity filter error, returning original text:', error);
-    return text;
-  }
+  return profanity.clean(text);
 };
 
 /**
@@ -45,13 +27,7 @@ export const filterProfanity = (text) => {
 export const hasProfanity = (text) => {
   if (!text || typeof text !== 'string') return false;
 
-  try {
-    ensureDictionaryLoaded();
-    return profanity.check(text);
-  } catch (error) {
-    console.warn('Profanity check error:', error);
-    return false;
-  }
+  return profanity.check(text);
 };
 
 /**
@@ -62,13 +38,7 @@ export const hasProfanity = (text) => {
 export const getProfanityWords = (text) => {
   if (!text || typeof text !== 'string') return [];
 
-  try {
-    ensureDictionaryLoaded();
-    return profanity.search(text);
-  } catch (error) {
-    console.warn('Profanity search error:', error);
-    return [];
-  }
+  return profanity.search(text);
 };
 
 export default profanity;
