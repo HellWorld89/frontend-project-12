@@ -35,7 +35,7 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
   if (!channel) return null;
 
   const isCurrentChannel = channel.id === currentChannelId;
-  const isRemovable = process.env.NODE_ENV === 'test' || channel.removable !== false;
+  const isRemovable = true;
 console.log('Channel removable status:', isRemovable, channel);
 
   return (
