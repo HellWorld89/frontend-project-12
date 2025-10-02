@@ -78,8 +78,8 @@ const ChannelsList = () => {
         {channels.map((channel) => (
           <ListGroup.Item
             key={channel.id}
-            as="div"
-            role="button"
+            as="button" 
+            type="button"
             tabIndex={0}
             aria-label={`Канал ${filterProfanity(channel.name)}`}
             active={channel.id === currentChannelId}
