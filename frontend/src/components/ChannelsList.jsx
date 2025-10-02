@@ -35,30 +35,32 @@ const ChannelsList = () => {
     return !channel.creator || channel.creator === username || channel.username === username;
   };
 
-  // Кастомный Toggle для Dropdown - используем span вместо Button
-  const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-    <span
-      ref={ref}
-      className="channel-dropdown-toggle"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onClick(e);
-      }}
-      style={{
-        color: '#6c757d',
-        fontSize: '0.8rem',
-        cursor: 'pointer',
-        padding: '0.25rem',
-        borderRadius: '3px',
-        display: 'inline-flex',
-        alignItems: 'center'
-      }}
-      onMouseDown={(e) => e.stopPropagation()}
-    >
-      {children}
+const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
+  <span
+    ref={ref}
+    className="channel-dropdown-toggle"
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onClick(e);
+    }}
+    style={{
+      color: '#6c757d',
+      fontSize: '0.8rem',
+      cursor: 'pointer',
+      padding: '0.25rem',
+      borderRadius: '3px',
+      display: 'inline-flex',
+      alignItems: 'center'
+    }}
+    onMouseDown={(e) => e.stopPropagation()}
+  >
+    <span style={{ fontSize: '0.1px', opacity: 0.01, position: 'absolute' }}>
+      {t('channels.manageChannel')}
     </span>
-  ));
+    {children}
+  </span>
+));
 
   return (
     <div className="channels-list">

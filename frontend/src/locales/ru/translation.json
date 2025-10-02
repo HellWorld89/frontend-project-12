@@ -58,6 +58,7 @@
     "adding": "Добавляем...",
     "renaming": "Переименовываем...",
     "deleting": "Удаляем...",
+    "manageChannel": "Управление каналом",
     "nameAvailable": "Название доступно"
   },
   "messages": {
