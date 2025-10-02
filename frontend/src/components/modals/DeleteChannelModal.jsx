@@ -78,6 +78,7 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
         {isRemovable && (
           <Button
             variant="danger"
+            className="btn-danger"
             onClick={handleDelete}
             disabled={operationStatus.loading}
           >
