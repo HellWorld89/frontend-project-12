@@ -6,6 +6,7 @@ import { setCurrentChannel } from '../store/channelsSlice';
 import AddChannelModal from './modals/AddChannelModal';
 import RenameChannelModal from './modals/RenameChannelModal';
 import DeleteChannelModal from './modals/DeleteChannelModal';
+import { filterProfanity } from '../utils/profanityFilter';
 
 const ChannelsList = () => {
   const dispatch = useDispatch();
@@ -96,7 +97,7 @@ const ChannelsList = () => {
           >
             <div className="channel-name flex-grow-1 text-truncate">
               <span className="me-1">#</span>
-              {channel.name}
+              {filterProfanity(channel.name)}
             </div>
 
             {canManageChannel(channel) && (
