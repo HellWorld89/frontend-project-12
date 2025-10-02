@@ -97,7 +97,7 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
         {channels.map((channel) => (
           <ListGroup.Item
             key={channel.id}
-            as="button"
+            as="div"
             type="button"
             tabIndex={0}
             aria-label={`Канал ${filterProfanity(channel.name)}`}

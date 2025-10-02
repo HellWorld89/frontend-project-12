@@ -103,7 +103,7 @@
     "info": "Информация",
     "channelAdded":  "Канал создан",
     "channelRenamed": "Канал переименован",
-    "channelDeleted": "Канал удален",
+    "channelDeleted": "Канал удалён",
     "networkError": "Ошибка сети",
     "dataLoadError": "Ошибка загрузки данных",
     "connectionLost": "Соединение потеряно",
