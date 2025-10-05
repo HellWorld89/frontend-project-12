@@ -27,29 +27,29 @@ const Header = () => {
           <Nav className="ms-auto">
             {isAuthenticated
               ? (
-                  <div className="d-flex align-items-center">
-                    <span className="navbar-text me-3">
-                      {t('auth.welcome', { username })}
-                    </span>
-                    <Button
-                      variant="outline-primary"
-                      onClick={handleLogout}
-                      size="sm"
-                    >
-                      {t('auth.logout')}
-                    </Button>
-                  </div>
-                )
+                <div className="d-flex align-items-center">
+                  <span className="navbar-text me-3">
+                    {t('auth.welcome', { username })}
+                  </span>
+                  <Button
+                    variant="outline-primary"
+                    onClick={handleLogout}
+                    size="sm"
+                  >
+                    {t('auth.logout')}
+                  </Button>
+                </div>
+              )
               : (
-                  <div className="d-flex align-items-center">
-                    <Nav.Link as={Link} to="/login" className="me-2">
-                      {t('auth.signIn')}
-                    </Nav.Link>
-                    <Nav.Link as={Link} to="/signup">
-                      {t('auth.register')}
-                    </Nav.Link>
-                  </div>
-                )}
+                <div className="d-flex align-items-center">
+                  <Nav.Link as={Link} to="/login" className="me-2">
+                    {t('auth.signIn')}
+                  </Nav.Link>
+                  <Nav.Link as={Link} to="/signup">
+                    {t('auth.register')}
+                  </Nav.Link>
+                </div>
+              )}
           </Nav>
         </Navbar.Collapse>
       </Container>

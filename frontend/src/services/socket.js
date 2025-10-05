@@ -38,12 +38,12 @@ class SocketService {
           resolve(this.socket)
         })
 
-        this.socket.on('disconnect', (reason) => {
+        this.socket.on('disconnect', reason => {
           console.log('❌ SocketService: WebSocket disconnected:', reason)
           this.isConnected = false
         })
 
-        this.socket.on('connect_error', (error) => {
+        this.socket.on('connect_error', error => {
           console.error('💥 SocketService: Connection error:', error)
           this.isConnected = false
 
@@ -62,7 +62,7 @@ class SocketService {
         const originalEmit = this.socket.emit.bind(this.socket)
         this.socket.emit = (event, data, callback) => {
           console.log('📤 SocketService: Emitting event:', { event, data })
-          return originalEmit(event, data, (response) => {
+          return originalEmit(event, data, response => {
             console.log('📨 SocketService: Event response:', { event, response })
             if (callback) callback(response)
           })

@@ -9,8 +9,8 @@ export default defineConfig({
         target: 'http://localhost:5001',
         changeOrigin: true,
         secure: false,
-        configure: (proxy) => {
-          proxy.on('error', (err) => {
+        configure: proxy => {
+          proxy.on('error', err => {
             console.log('proxy error', err)
           })
           proxy.on('proxyReq', (proxyReq, req) => {

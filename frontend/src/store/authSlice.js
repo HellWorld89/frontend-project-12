@@ -76,7 +76,7 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    logout: (state) => {
+    logout: state => {
       localStorage.removeItem('token')
       localStorage.removeItem('username')
       state.token = null
@@ -84,13 +84,13 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.error = null
     },
-    clearError: (state) => {
+    clearError: state => {
       state.error = null
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(loginUser.pending, (state) => {
+      .addCase(loginUser.pending, state => {
         state.loading = true
         state.error = null
       })
@@ -108,7 +108,7 @@ const authSlice = createSlice({
         state.username = null
         state.isAuthenticated = false
       })
-      .addCase(registerUser.pending, (state) => {
+      .addCase(registerUser.pending, state => {
         state.loading = true
         state.error = null
       })

@@ -11,7 +11,7 @@ import Header from './Header'
 const SignupPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth)
+  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
   const [showError, setShowError] = useState(false)
   const { t } = useTranslation()
 

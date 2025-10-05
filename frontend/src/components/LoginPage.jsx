@@ -18,7 +18,7 @@ const LoginPage = () => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth)
+  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
   const [showError, setShowError] = useState(false)
 
   // Редирект если уже авторизован

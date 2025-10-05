@@ -19,8 +19,8 @@ const MainPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { isAuthenticated } = useSelector((state) => state.auth)
-  const { items: channels, currentChannelId } = useSelector((state) => state.channels)
+  const { isAuthenticated } = useSelector(state => state.auth)
+  const { items: channels, currentChannelId } = useSelector(state => state.channels)
 
   const [dataLoaded, setDataLoaded] = useState(false)
   const [loadError, setLoadError] = useState(null)
@@ -88,7 +88,7 @@ const MainPage = () => {
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
-      const generalChannel = channels.find((channel) => channel.name === 'general') || channels[0]
+      const generalChannel = channels.find(channel => channel.name === 'general') || channels[0]
       if (generalChannel) {
         dispatch(setCurrentChannel(generalChannel.id))
       }

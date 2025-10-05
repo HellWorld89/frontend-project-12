@@ -167,16 +167,16 @@ const messagesSlice = createSlice({
     removeMessage: (state, action) => {
       state.items = state.items.filter(message => message.id !== action.payload.id)
     },
-    clearMessages: (state) => {
+    clearMessages: state => {
       state.items = []
     },
     removeMessagesByChannelId: (state, action) => {
       state.items = state.items.filter(message => message.channelId !== action.payload)
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchMessages.pending, (state) => {
+      .addCase(fetchMessages.pending, state => {
         console.log('⏳ messagesSlice: Fetching messages...')
         state.loading = true
         state.error = null
