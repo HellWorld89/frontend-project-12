@@ -1,52 +1,52 @@
-import { useState, useEffect } from 'react';
-import { Form, Button, Card, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import { loginUser, clearError } from '../store/authSlice';
-import Header from './Header';
+import { useState, useEffect } from 'react'
+import { Form, Button, Card, Container, Row, Col, Alert, Spinner } from 'react-bootstrap'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+import { loginUser, clearError } from '../store/authSlice'
+import Header from './Header'
 
 // Схема валидации
 const loginSchema = yup.object().shape({
   username: yup.string().required('validation.required'),
   password: yup.string().required('validation.required'),
-});
+})
 
 const LoginPage = () => {
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
-  const [showError, setShowError] = useState(false);
+  const { t } = useTranslation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
+  const [showError, setShowError] = useState(false)
 
   // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate('/')
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate])
 
   // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
-      setShowError(true);
+      setShowError(true)
     }
-  }, [error]);
+  }, [error])
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    setShowError(false);
-    dispatch(clearError());
+    setShowError(false)
+    dispatch(clearError())
 
     try {
-      await dispatch(loginUser(values)).unwrap();
+      await dispatch(loginUser(values)).unwrap()
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login error:', error)
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="h-100 bg-light">
@@ -158,7 +158,7 @@ const LoginPage = () => {
         </Row>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

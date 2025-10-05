@@ -1,9 +1,9 @@
-import { Navbar, Nav, Container, Button } from 'react-bootstrap';
-import { LinkContainer } from 'react-router-bootstrap';
+import { Navbar, Nav, Container, Button } from 'react-bootstrap'
+import { LinkContainer } from 'react-router-bootstrap'
 
 const Navigation = () => {
   // Заглушка для состояния авторизации
-  const isAuthenticated = false;
+  const isAuthenticated = false
 
   return (
     <Navbar bg="dark" variant="dark" expand="lg">
@@ -34,7 +34,7 @@ const Navigation = () => {
         </Navbar.Collapse>
       </Container>
     </Navbar>
-  );
-};
+  )
+}
 
-export default Navigation;
+export default Navigation

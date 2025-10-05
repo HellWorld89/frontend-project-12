@@ -53,8 +53,7 @@ export const useMessageQueue = () => {
 
           // Небольшая задержка между сообщениями
           await new Promise(resolve => setTimeout(resolve, 100))
-        }
-        catch (error) {
+        } catch (error) {
           console.error('Failed to send message:', message.tempId, error)
           dispatch(updatePendingMessage({
             tempId: message.tempId,
@@ -63,11 +62,9 @@ export const useMessageQueue = () => {
           break
         }
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error processing message queue:', error)
-    }
-    finally {
+    } finally {
       isProcessingRef.current = false
     }
   }, [dispatch, pendingMessages, currentChannelId])
@@ -87,8 +84,7 @@ export const useMessageQueue = () => {
       setTimeout(() => {
         if (socket && socket.connected) {
           retryPendingMessages()
-        }
-        else {
+        } else {
           socketService.connect().then(() => {
             setTimeout(() => retryPendingMessages(), 500)
           })

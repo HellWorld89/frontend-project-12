@@ -1,68 +1,68 @@
-import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
+import { Modal, Button, Form, Alert } from 'react-bootstrap'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
 import {
   createChannel,
   resetOperationStatus,
-  setCurrentChannel
-} from '../../store/channelsSlice';
-import { filterProfanity, hasProfanity } from '../../utils/profanityFilter';
+  setCurrentChannel,
+} from '../../store/channelsSlice'
+import { filterProfanity, hasProfanity } from '../../utils/profanityFilter'
 
 // Храним Set с ID каналов, для которых уже показали уведомление
-const shownChannelIds = new Set();
+const shownChannelIds = new Set()
 
 const AddChannelModal = ({ show, onHide }) => {
-  const dispatch = useDispatch();
-  const { t } = useTranslation();
-  const inputRef = useRef(null);
-  const { items: channels } = useSelector((state) => state.channels);
-  const { operationStatus } = useSelector((state) => state.channels);
+  const dispatch = useDispatch()
+  const { t } = useTranslation()
+  const inputRef = useRef(null)
+  const { items: channels } = useSelector(state => state.channels)
+  const { operationStatus } = useSelector(state => state.channels)
 
-  const [createdChannelId, setCreatedChannelId] = useState(null);
-  const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set());
+  const [createdChannelId, setCreatedChannelId] = useState(null)
+  const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set())
 
   useEffect(() => {
     if (createdChannelId && show) {
-      const newChannelExists = channels.some((channel) => channel.id === createdChannelId);
+      const newChannelExists = channels.some(channel => channel.id === createdChannelId)
 
       if (newChannelExists) {
-        console.log('✅ New channel detected in list, switching to it:', createdChannelId);
+        console.log('✅ New channel detected in list, switching to it:', createdChannelId)
 
         // Показываем toast-уведомление только если еще не показывали для этого канала
         if (!shownChannelIds.has(createdChannelId)) {
-          toast.success(t('toast.channelAdded'));
-          shownChannelIds.add(createdChannelId);
+          toast.success(t('toast.channelAdded'))
+          shownChannelIds.add(createdChannelId)
 
           // Очищаем через некоторое время чтобы не накапливать ID
           setTimeout(() => {
-            shownChannelIds.delete(createdChannelId);
-          }, 5000);
+            shownChannelIds.delete(createdChannelId)
+          }, 5000)
         }
 
-        dispatch(setCurrentChannel(createdChannelId));
+        dispatch(setCurrentChannel(createdChannelId))
         setTimeout(() => {
-          onHide();
-          setCreatedChannelId(null);
-        }, 300);
+          onHide()
+          setCreatedChannelId(null)
+        }, 300)
       }
     }
-  }, [channels, createdChannelId, show, dispatch, onHide, t]);
+  }, [channels, createdChannelId, show, dispatch, onHide, t])
 
   useEffect(() => {
     if (show && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 100);
-      setCreatedChannelId(null);
+      setTimeout(() => inputRef.current?.focus(), 100)
+      setCreatedChannelId(null)
     }
 
     if (!show) {
-      dispatch(resetOperationStatus());
-      setCreatedChannelId(null);
+      dispatch(resetOperationStatus())
+      setCreatedChannelId(null)
     }
-  }, [show, dispatch]);
+  }, [show, dispatch])
 
   const getValidationSchema = () => {
     return yup.object().shape({
@@ -73,51 +73,51 @@ const AddChannelModal = ({ show, onHide }) => {
         .test(
           'unique-name',
           t('validation.channelNameUnique'),
-          (value) => !channelNamesOnOpen.has(value.toLowerCase())
+          value => !channelNamesOnOpen.has(value.toLowerCase()),
         )
         .required(t('validation.required')),
-    });
-  };
+    })
+  }
 
   useEffect(() => {
     if (show) {
-      const names = channels.map((channel) => channel.name.toLowerCase());
-      setChannelNamesOnOpen(new Set(names));
+      const names = channels.map(channel => channel.name.toLowerCase())
+      setChannelNamesOnOpen(new Set(names))
     }
-  }, [show, channels]);
+  }, [show, channels])
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       // Фильтруем нецензурные слова в названии канала
-      const filteredName = filterProfanity(values.name);
+      const filteredName = filterProfanity(values.name)
 
       // Показываем предупреждение если были отфильтрованы слова
       if (hasProfanity(values.name) && filteredName !== values.name) {
-        toast.warn(t('profanity.channelNameFiltered'));
+        toast.warn(t('profanity.channelNameFiltered'))
       }
 
-      const result = await dispatch(createChannel({ name: filteredName })).unwrap();
+      const result = await dispatch(createChannel({ name: filteredName })).unwrap()
       if (result && result.id) {
-        setCreatedChannelId(result.id);
-        console.log('✅ Channel creation response received:', result.id);
+        setCreatedChannelId(result.id)
+        console.log('✅ Channel creation response received:', result.id)
       }
-      resetForm();
+      resetForm()
     } catch (error) {
-      console.error('Error creating channel:', error);
+      console.error('Error creating channel:', error)
       // Показываем toast-уведомление об ошибке
-      toast.error(t('toast.error'));
-      setSubmitting(false);
+      toast.error(t('toast.error'))
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleHide = () => {
-    dispatch(resetOperationStatus());
-    setCreatedChannelId(null);
-    onHide();
-  };
+    dispatch(resetOperationStatus())
+    setCreatedChannelId(null)
+    onHide()
+  }
 
-  const isWaitingForWebSocket = createdChannelId && !channels.some((ch) => ch.id === createdChannelId);
-  const isChannelCreated = createdChannelId && channels.some((ch) => ch.id === createdChannelId);
+  const isWaitingForWebSocket = createdChannelId && !channels.some(ch => ch.id === createdChannelId)
+  const isChannelCreated = createdChannelId && channels.some(ch => ch.id === createdChannelId)
 
   return (
     <Modal show={show} onHide={handleHide} centered>
@@ -170,10 +170,10 @@ const AddChannelModal = ({ show, onHide }) => {
                   onBlur={handleBlur}
                   isInvalid={touched.name && !!errors.name}
                   disabled={isSubmitting || operationStatus.loading || isWaitingForWebSocket || isChannelCreated}
-                  onKeyDown={(e) => {
+                  onKeyDown={e => {
                     if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleSubmit();
+                      e.preventDefault()
+                      handleSubmit()
                     }
                   }}
                   placeholder={t('validation.channelNameLength')}
@@ -230,7 +230,7 @@ const AddChannelModal = ({ show, onHide }) => {
         )}
       </Formik>
     </Modal>
-  );
-};
+  )
+}
 
-export default AddChannelModal;
+export default AddChannelModal

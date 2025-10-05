@@ -12,8 +12,7 @@ export const fetchChannels = createAsyncThunk(
         },
       })
       return response.data
-    }
-    catch (error) {
+    } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Ошибка загрузки каналов')
     }
   },
@@ -31,8 +30,7 @@ export const createChannel = createAsyncThunk(
         },
       })
       return response.data
-    }
-    catch (error) {
+    } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Ошибка добавления канала')
     }
   },
@@ -49,8 +47,7 @@ export const renameChannel = createAsyncThunk(
         },
       })
       return response.data
-    }
-    catch (error) {
+    } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Ошибка переименования канала')
     }
   },
@@ -67,8 +64,7 @@ export const deleteChannel = createAsyncThunk(
         },
       })
       return channelId
-    }
-    catch (error) {
+    } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Ошибка удаления канала')
     }
   },
@@ -93,7 +89,7 @@ const channelsSlice = createSlice({
     setCurrentChannel: (state, action) => {
       state.currentChannelId = action.payload
     },
-    clearRecentlyCreatedChannel: (state) => {
+    clearRecentlyCreatedChannel: state => {
       state.recentlyCreatedChannelId = null
     },
     // Добавляем проверку на дубликаты
@@ -124,7 +120,7 @@ const channelsSlice = createSlice({
         state.currentChannelId = state.items[0]?.id || null
       }
     },
-    resetOperationStatus: (state) => {
+    resetOperationStatus: state => {
       state.operationStatus = {
         type: null,
         loading: false,
@@ -132,9 +128,9 @@ const channelsSlice = createSlice({
       }
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      .addCase(fetchChannels.pending, (state) => {
+      .addCase(fetchChannels.pending, state => {
         state.loading = true
         state.error = null
       })
@@ -147,14 +143,14 @@ const channelsSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
-      .addCase(createChannel.pending, (state) => {
+      .addCase(createChannel.pending, state => {
         state.operationStatus = {
           type: 'create',
           loading: true,
           error: null,
         }
       })
-      .addCase(createChannel.fulfilled, (state) => {
+      .addCase(createChannel.fulfilled, state => {
         state.operationStatus.loading = false
         // Просто сбрасываем статус загрузки, вся логика в модальном окне
         console.log('✅ Channel creation HTTP request completed')
@@ -168,11 +164,11 @@ const channelsSlice = createSlice({
         state.recentlyCreatedChannelId = null
       })
       // Аналогично для renameChannel и deleteChannel
-      .addCase(renameChannel.fulfilled, (state) => {
+      .addCase(renameChannel.fulfilled, state => {
         state.operationStatus.loading = false
         // Обновление придет через WebSocket
       })
-      .addCase(deleteChannel.fulfilled, (state) => {
+      .addCase(deleteChannel.fulfilled, state => {
         state.operationStatus.loading = false
         // Удаление придет через WebSocket
       })

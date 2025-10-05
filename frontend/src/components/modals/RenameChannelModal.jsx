@@ -1,38 +1,38 @@
-import { Modal, Button, Form, Alert } from 'react-bootstrap';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { toast } from 'react-toastify';
-import { renameChannel, resetOperationStatus } from '../../store/channelsSlice';
-import { filterProfanity, hasProfanity } from '../../utils/profanityFilter';
+import { Modal, Button, Form, Alert } from 'react-bootstrap'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+import { useDispatch, useSelector } from 'react-redux'
+import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
+import { renameChannel, resetOperationStatus } from '../../store/channelsSlice'
+import { filterProfanity, hasProfanity } from '../../utils/profanityFilter'
 
 const RenameChannelModal = ({ show, onHide, channel }) => {
-  const dispatch = useDispatch();
-  const { t } = useTranslation();
-  const inputRef = useRef(null);
-  const { items: channels } = useSelector((state) => state.channels);
-  const { operationStatus } = useSelector((state) => state.channels);
-  const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set());
+  const dispatch = useDispatch()
+  const { t } = useTranslation()
+  const inputRef = useRef(null)
+  const { items: channels } = useSelector(state => state.channels)
+  const { operationStatus } = useSelector(state => state.channels)
+  const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set())
 
   useEffect(() => {
     if (show && channel) {
       const names = channels
-        .filter((ch) => ch.id !== channel.id)
-        .map((ch) => ch.name.toLowerCase());
-      setChannelNamesOnOpen(new Set(names));
+        .filter(ch => ch.id !== channel.id)
+        .map(ch => ch.name.toLowerCase())
+      setChannelNamesOnOpen(new Set(names))
 
       setTimeout(() => {
         if (inputRef.current) {
-          inputRef.current.focus();
-          inputRef.current.select();
+          inputRef.current.focus()
+          inputRef.current.select()
         }
-      }, 100);
+      }, 100)
     } else {
-      dispatch(resetOperationStatus());
+      dispatch(resetOperationStatus())
     }
-  }, [show, channel, channels, dispatch]);
+  }, [show, channel, channels, dispatch])
 
   const getValidationSchema = () => {
     return yup.object().shape({
@@ -43,46 +43,46 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
         .test(
           'unique-name',
           t('validation.channelNameUnique'),
-          (value) => !channelNamesOnOpen.has(value.toLowerCase())
+          value => !channelNamesOnOpen.has(value.toLowerCase()),
         )
         .required(t('validation.required')),
-    });
-  };
+    })
+  }
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-    if (!channel) return;
+    if (!channel) return
 
     try {
       // Фильтруем нецензурные слова в названии канала
-      const filteredName = filterProfanity(values.name);
+      const filteredName = filterProfanity(values.name)
 
       // Показываем предупреждение если были отфильтрованы слова
       if (hasProfanity(values.name) && filteredName !== values.name) {
-        toast.warn(t('profanity.channelNameFiltered'));
+        toast.warn(t('profanity.channelNameFiltered'))
       }
 
-      await dispatch(renameChannel({ id: channel.id, name: filteredName })).unwrap();
+      await dispatch(renameChannel({ id: channel.id, name: filteredName })).unwrap()
 
       // Показываем toast-уведомление об успешном переименовании
-      toast.success(t('toast.channelRenamed'));
+      toast.success(t('toast.channelRenamed'))
 
-      resetForm();
-      onHide();
+      resetForm()
+      onHide()
     } catch (error) {
-      console.error('Error renaming channel:', error);
+      console.error('Error renaming channel:', error)
       // Показываем toast-уведомление об ошибке
-      toast.error(t('toast.error'));
+      toast.error(t('toast.error'))
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   const handleHide = () => {
-    dispatch(resetOperationStatus());
-    onHide();
-  };
+    dispatch(resetOperationStatus())
+    onHide()
+  }
 
-  if (!channel) return null;
+  if (!channel) return null
 
   return (
     <Modal show={show} onHide={handleHide} centered>
@@ -107,7 +107,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
           handleSubmit,
           isSubmitting,
         }) => {
-          const isChanged = values.name !== channel.name;
+          const isChanged = values.name !== channel.name
 
           return (
             <Form onSubmit={handleSubmit}>
@@ -130,10 +130,10 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                     onBlur={handleBlur}
                     isInvalid={touched.name && !!errors.name}
                     disabled={isSubmitting || operationStatus.loading}
-                    onKeyDown={(e) => {
+                    onKeyDown={e => {
                       if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleSubmit();
+                        e.preventDefault()
+                        handleSubmit()
                       }
                     }}
                     placeholder={t('validation.channelNameLength')}
@@ -179,11 +179,11 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                 </Button>
               </Modal.Footer>
             </Form>
-          );
+          )
         }}
       </Formik>
     </Modal>
-  );
-};
+  )
+}
 
-export default RenameChannelModal;
+export default RenameChannelModal

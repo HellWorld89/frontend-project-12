@@ -1,15 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { Provider as ReduxProvider } from 'react-redux';
-import { I18nextProvider } from 'react-i18next';
-import { ToastContainer } from 'react-toastify';
-import { Provider, ErrorBoundary } from '@rollbar/react'; // ✅ Правильный импорт
-import store from './store';
-import i18n from './i18n';
-import App from './App';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'react-toastify/dist/ReactToastify.css';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import { Provider as ReduxProvider } from 'react-redux'
+import { I18nextProvider } from 'react-i18next'
+import { ToastContainer } from 'react-toastify'
+import { Provider, ErrorBoundary } from '@rollbar/react' // ✅ Правильный импорт
+import store from './store'
+import i18n from './i18n'
+import App from './App'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'react-toastify/dist/ReactToastify.css'
 
 const rollbarConfig = {
   accessToken: import.meta.env.VITE_ROLLBAR_ACCESS_TOKEN,
@@ -24,10 +24,10 @@ const rollbarConfig = {
         // Добавьте поддержку source maps если нужно
         // source_map_enabled: true,
         // guess_uncaught_frames: true
-      }
-    }
-  }
-};
+      },
+    },
+  },
+}
 
 // Компонент для отображения ошибки
 const ErrorFallback = ({ resetError }) => {
@@ -44,8 +44,8 @@ const ErrorFallback = ({ resetError }) => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -73,4 +73,4 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </ErrorBoundary>
     </Provider>
   </React.StrictMode>,
-);
+)

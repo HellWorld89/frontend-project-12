@@ -1,7 +1,7 @@
 // api/axiosConfig.js
 import axios from 'axios'
 
-axios.interceptors.request.use((config) => {
+axios.interceptors.request.use(config => {
   const token = localStorage.getItem('token')
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -16,7 +16,7 @@ axios.interceptors.request.use((config) => {
 })
 
 axios.interceptors.response.use(
-  (response) => {
+  response => {
     console.log('✅ Axios Response:', {
       url: response.config.url,
       status: response.status,
@@ -24,7 +24,7 @@ axios.interceptors.response.use(
     })
     return response
   },
-  (error) => {
+  error => {
     console.error('❌ Axios Error:', {
       url: error.config?.url,
       status: error.response?.status,

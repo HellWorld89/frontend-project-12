@@ -1,10 +1,10 @@
-import { Container, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import Header from './Header';
+import { Container, Button } from 'react-bootstrap'
+import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
+import Header from './Header'
 
 const NotFoundPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <div className="h-100 bg-light">
@@ -22,7 +22,7 @@ const NotFoundPage = () => {
         </div>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default NotFoundPage;
+export default NotFoundPage

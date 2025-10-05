@@ -24,7 +24,7 @@ function App() {
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
     </div>
-  );
+  )
 }
 
 export default App

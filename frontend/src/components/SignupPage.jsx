@@ -1,19 +1,19 @@
-import { useState, useEffect } from 'react';
-import { Form, Button, Card, Container, Row, Col, Alert, Spinner } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import { Formik } from 'formik';
-import * as yup from 'yup';
-import { registerUser } from '../store/authSlice';
-import Header from './Header';
+import { useState, useEffect } from 'react'
+import { Form, Button, Card, Container, Row, Col, Alert, Spinner } from 'react-bootstrap'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+import { registerUser } from '../store/authSlice'
+import Header from './Header'
 
 const SignupPage = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
-  const [showError, setShowError] = useState(false);
-  const { t } = useTranslation();
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
+  const [showError, setShowError] = useState(false)
+  const { t } = useTranslation()
 
   // Схема валидации
   const signupSchema = yup.object().shape({
@@ -30,39 +30,39 @@ const SignupPage = () => {
       .string()
       .oneOf([yup.ref('password'), null], t('validation.passwordsMatch'))
       .required(t('validation.required')),
-  });
+  })
 
   // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate('/')
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate])
 
   // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
-      setShowError(true);
+      setShowError(true)
     }
-  }, [error]);
+  }, [error])
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    setShowError(false);
+    setShowError(false)
 
     try {
       const result = await dispatch(registerUser({
         username: values.username,
         password: values.password,
-      })).unwrap();
+      })).unwrap()
 
-      console.log('✅ Registration successful:', result);
+      console.log('✅ Registration successful:', result)
 
     } catch (error) {
-      console.error('❌ Registration failed:', error);
+      console.error('❌ Registration failed:', error)
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
   return (
     <div className="h-100 bg-light">
@@ -198,7 +198,7 @@ const SignupPage = () => {
         </Row>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default SignupPage;
+export default SignupPage
