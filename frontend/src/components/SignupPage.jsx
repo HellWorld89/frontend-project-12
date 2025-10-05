@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 import {
   Form,
   Button,
@@ -8,57 +8,57 @@ import {
   Col,
   Alert,
   Spinner,
-} from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { Formik } from "formik";
-import * as yup from "yup";
-import { registerUser } from "../store/authSlice";
-import Header from "./Header";
+} from 'react-bootstrap'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+import { registerUser } from '../store/authSlice'
+import Header from './Header'
 
 const SignupPage = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.auth,
-  );
-  const [showError, setShowError] = useState(false);
-  const { t } = useTranslation();
+    state => state.auth,
+  )
+  const [showError, setShowError] = useState(false)
+  const { t } = useTranslation()
 
   // Схема валидации
   const signupSchema = yup.object().shape({
     username: yup
       .string()
-      .min(3, t("validation.usernameLength"))
-      .max(20, t("validation.usernameLength"))
-      .required(t("validation.required")),
+      .min(3, t('validation.usernameLength'))
+      .max(20, t('validation.usernameLength'))
+      .required(t('validation.required')),
     password: yup
       .string()
-      .min(6, t("validation.passwordMin"))
-      .required(t("validation.required")),
+      .min(6, t('validation.passwordMin'))
+      .required(t('validation.required')),
     confirmPassword: yup
       .string()
-      .oneOf([yup.ref("password"), null], t("validation.passwordsMatch"))
-      .required(t("validation.required")),
-  });
+      .oneOf([yup.ref('password'), null], t('validation.passwordsMatch'))
+      .required(t('validation.required')),
+  })
 
   // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate('/')
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate])
 
   // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
-      setShowError(true);
+      setShowError(true)
     }
-  }, [error]);
+  }, [error])
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    setShowError(false);
+    setShowError(false)
 
     try {
       const result = await dispatch(
@@ -66,15 +66,17 @@ const SignupPage = () => {
           username: values.username,
           password: values.password,
         }),
-      ).unwrap();
+      ).unwrap()
 
-      console.log("✅ Registration successful:", result);
-    } catch (error) {
-      console.error("❌ Registration failed:", error);
-    } finally {
-      setSubmitting(false);
+      console.log('✅ Registration successful:', result)
     }
-  };
+    catch (error) {
+      console.error('❌ Registration failed:', error)
+    }
+    finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="h-100 bg-light">
@@ -84,7 +86,7 @@ const SignupPage = () => {
           <Col xs={12} md={8} lg={6}>
             <Card className="shadow-sm">
               <Card.Body className="p-5">
-                <h1 className="text-center mb-4">{t("auth.register")}</h1>
+                <h1 className="text-center mb-4">{t('auth.register')}</h1>
 
                 {showError && error && (
                   <Alert
@@ -99,9 +101,9 @@ const SignupPage = () => {
 
                 <Formik
                   initialValues={{
-                    username: "",
-                    password: "",
-                    confirmPassword: "",
+                    username: '',
+                    password: '',
+                    confirmPassword: '',
                   }}
                   validationSchema={signupSchema}
                   onSubmit={handleSubmit}
@@ -118,7 +120,7 @@ const SignupPage = () => {
                     <Form onSubmit={handleSubmit}>
                       <Form.Group className="mb-3">
                         <Form.Label htmlFor="username">
-                          {t("auth.username")}
+                          {t('auth.username')}
                         </Form.Label>
                         <Form.Control
                           type="text"
@@ -129,7 +131,7 @@ const SignupPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.username && !!errors.username}
                           disabled={loading}
-                          placeholder={t("validation.usernameLength")}
+                          placeholder={t('validation.usernameLength')}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.username}
@@ -138,7 +140,7 @@ const SignupPage = () => {
 
                       <Form.Group className="mb-3">
                         <Form.Label htmlFor="password">
-                          {t("auth.password")}
+                          {t('auth.password')}
                         </Form.Label>
                         <Form.Control
                           type="password"
@@ -149,7 +151,7 @@ const SignupPage = () => {
                           onBlur={handleBlur}
                           isInvalid={touched.password && !!errors.password}
                           disabled={loading}
-                          placeholder={t("validation.passwordMin")}
+                          placeholder={t('validation.passwordMin')}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.password}
@@ -158,7 +160,7 @@ const SignupPage = () => {
 
                       <Form.Group className="mb-4">
                         <Form.Label htmlFor="confirmPassword">
-                          {t("auth.confirmPassword")}
+                          {t('auth.confirmPassword')}
                         </Form.Label>
                         <Form.Control
                           type="password"
@@ -171,7 +173,7 @@ const SignupPage = () => {
                             touched.confirmPassword && !!errors.confirmPassword
                           }
                           disabled={loading}
-                          placeholder={t("validation.passwordsMatch")}
+                          placeholder={t('validation.passwordsMatch')}
                         />
                         <Form.Control.Feedback type="invalid">
                           {errors.confirmPassword}
@@ -184,21 +186,23 @@ const SignupPage = () => {
                         className="w-100"
                         disabled={loading || isSubmitting}
                       >
-                        {loading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            {t("common.loading")}
-                          </>
-                        ) : (
-                          t("auth.signUp")
-                        )}
+                        {loading
+                          ? (
+                              <>
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                  className="me-2"
+                                />
+                                {t('common.loading')}
+                              </>
+                            )
+                          : (
+                              t('auth.signUp')
+                            )}
                       </Button>
                     </Form>
                   )}
@@ -206,9 +210,10 @@ const SignupPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    {t("auth.haveAccount")}{" "}
+                    {t('auth.haveAccount')}
+                    {' '}
                     <Link to="/login" className="text-decoration-none">
-                      {t("auth.signIn")}
+                      {t('auth.signIn')}
                     </Link>
                   </p>
                 </div>
@@ -218,7 +223,7 @@ const SignupPage = () => {
         </Row>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default SignupPage;
+export default SignupPage

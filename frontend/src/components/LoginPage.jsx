@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react'
 import {
   Form,
   Button,
@@ -8,56 +8,58 @@ import {
   Col,
   Alert,
   Spinner,
-} from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { Formik } from "formik";
-import * as yup from "yup";
-import { loginUser, clearError } from "../store/authSlice";
-import Header from "./Header";
+} from 'react-bootstrap'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
+import { Formik } from 'formik'
+import * as yup from 'yup'
+import { loginUser, clearError } from '../store/authSlice'
+import Header from './Header'
 
 // Схема валидации
 const loginSchema = yup.object().shape({
-  username: yup.string().required("validation.required"),
-  password: yup.string().required("validation.required"),
-});
+  username: yup.string().required('validation.required'),
+  password: yup.string().required('validation.required'),
+})
 
 const LoginPage = () => {
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { t } = useTranslation()
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { loading, error, isAuthenticated } = useSelector(
-    (state) => state.auth,
-  );
-  const [showError, setShowError] = useState(false);
+    state => state.auth,
+  )
+  const [showError, setShowError] = useState(false)
 
   // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate('/')
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate])
 
   // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
-      setShowError(true);
+      setShowError(true)
     }
-  }, [error]);
+  }, [error])
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    setShowError(false);
-    dispatch(clearError());
+    setShowError(false)
+    dispatch(clearError())
 
     try {
-      await dispatch(loginUser(values)).unwrap();
-    } catch (error) {
-      console.error("Login error:", error);
-    } finally {
-      setSubmitting(false);
+      await dispatch(loginUser(values)).unwrap()
     }
-  };
+    catch (error) {
+      console.error('Login error:', error)
+    }
+    finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="h-100 bg-light">
@@ -67,7 +69,7 @@ const LoginPage = () => {
           <Col xs={12} md={8} lg={6}>
             <Card className="shadow-sm">
               <Card.Body className="p-5">
-                <h1 className="text-center mb-4">{t("auth.login")}</h1>
+                <h1 className="text-center mb-4">{t('auth.login')}</h1>
 
                 {showError && error && (
                   <Alert
@@ -81,7 +83,7 @@ const LoginPage = () => {
                 )}
 
                 <Formik
-                  initialValues={{ username: "", password: "" }}
+                  initialValues={{ username: '', password: '' }}
                   validationSchema={loginSchema}
                   onSubmit={handleSubmit}
                 >
@@ -97,7 +99,7 @@ const LoginPage = () => {
                     <Form onSubmit={handleSubmit}>
                       <Form.Group className="mb-3">
                         <Form.Label htmlFor="username">
-                          {t("auth.loginUsername")}
+                          {t('auth.loginUsername')}
                         </Form.Label>
                         <Form.Control
                           type="text"
@@ -116,7 +118,7 @@ const LoginPage = () => {
 
                       <Form.Group className="mb-4">
                         <Form.Label htmlFor="password">
-                          {t("auth.password")}
+                          {t('auth.password')}
                         </Form.Label>
                         <Form.Control
                           type="password"
@@ -139,21 +141,23 @@ const LoginPage = () => {
                         className="w-100"
                         disabled={loading || isSubmitting}
                       >
-                        {loading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            {t("common.loading")}
-                          </>
-                        ) : (
-                          t("auth.signIn")
-                        )}
+                        {loading
+                          ? (
+                              <>
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                  className="me-2"
+                                />
+                                {t('common.loading')}
+                              </>
+                            )
+                          : (
+                              t('auth.signIn')
+                            )}
                       </Button>
                     </Form>
                   )}
@@ -161,9 +165,10 @@ const LoginPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    {t("auth.noAccount")}{" "}
+                    {t('auth.noAccount')}
+                    {' '}
                     <Link to="/signup" className="text-decoration-none">
-                      {t("auth.signUp")}
+                      {t('auth.signUp')}
                     </Link>
                   </p>
                 </div>
@@ -173,7 +178,7 @@ const LoginPage = () => {
         </Row>
       </Container>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage

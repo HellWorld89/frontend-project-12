@@ -1,14 +1,14 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
 
 // Импортируем переводы
-import translationRU from './locales/ru/translation.json';
+import translationRU from './locales/ru/translation.json'
 
 const resources = {
   ru: {
     translation: translationRU,
   },
-};
+}
 
 i18n.use(initReactI18next).init({
   resources,
@@ -18,6 +18,6 @@ i18n.use(initReactI18next).init({
   interpolation: {
     escapeValue: false,
   },
-});
+})
 
-export default i18n;
+export default i18n

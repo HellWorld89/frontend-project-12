@@ -1,43 +1,36 @@
-import js from '@eslint/js';
-import globals from 'globals';
-import pluginReact from 'eslint-plugin-react';
-import stylisticJs from '@stylistic/eslint-plugin-js';
+import js from '@eslint/js'
+import globals from 'globals'
+import pluginReact from 'eslint-plugin-react'
+import { defineConfig } from 'eslint/config'
+import { includeIgnoreFile } from '@eslint/compat'
+import stylistic from '@stylistic/eslint-plugin'
+import { fileURLToPath } from 'url'
 
-export default [
+const gitIgnorePath = fileURLToPath(new URL('.gitignore', import.meta.url))
+
+export default defineConfig([
+  includeIgnoreFile(gitIgnorePath),
+  stylistic.configs.recommended,
   {
-    ignores: ['dist/', 'node_modules/', 'coverage/']
-  },
-  js.configs.recommended,
-  {
-    files: ['**/*.{js,jsx}'],
-    plugins: {
-      '@stylistic/js': stylisticJs,
-    },
-    rules: {
-      '@stylistic/js/indent': ['error', 2],
-      '@stylistic/js/quotes': ['error', 'single'],
-    },
+    files: ['**/*.{js,mjs,cjs,jsx}'],
+    plugins: { js },
+    extends: ['js/recommended'],
   },
   {
-    files: ['**/*.{js,jsx}'],
+    files: ['**/*.{js,mjs,cjs,jsx}'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
       globals: {
         ...globals.browser,
-        ...globals.jest
+        ...globals.node,
       },
     },
-    rules: {
-      'react/react-in-jsx-scope': 'off',
-      'react/prop-types': 'off',
-    },
   },
+  pluginReact.configs.flat.recommended,
   {
-    files: ['**/*.{js,jsx}'],
-    plugins: {
-      react: pluginReact,
+    rules: {
+      'react/prop-types': [0],
+      'react/react-in-jsx-scope': 0,
+      'react/jsx-uses-react': 0,
     },
-    rules: pluginReact.configs.recommended.rules,
   },
-];
+])
