@@ -56,7 +56,6 @@ const SignupPage = () => {
       })).unwrap()
 
       console.log('✅ Registration successful:', result)
-
     } catch (error) {
       console.error('❌ Registration failed:', error)
     } finally {
@@ -164,21 +163,23 @@ const SignupPage = () => {
                         className="w-100"
                         disabled={loading || isSubmitting}
                       >
-                        {loading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            {t('common.loading')}
-                          </>
-                        ) : (
-                          t('auth.signUp')
-                        )}
+                        {loading
+                          ? (
+                              <>
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                  className="me-2"
+                                />
+                                {t('common.loading')}
+                              </>
+                            )
+                          : (
+                              t('auth.signUp')
+                            )}
                       </Button>
                     </Form>
                   )}
@@ -186,7 +187,8 @@ const SignupPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    {t('auth.haveAccount')}{' '}
+                    {t('auth.haveAccount')}
+                    {' '}
                     <Link to="/login" className="text-decoration-none">
                       {t('auth.signIn')}
                     </Link>

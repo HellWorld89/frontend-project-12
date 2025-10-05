@@ -65,7 +65,6 @@ const MainPage = () => {
 
         setDataLoaded(true)
         console.log('🎉 MainPage: Data loading completed')
-
       } catch (error) {
         console.error('💥 MainPage: Error loading data:', error)
         setLoadError(error.message)

@@ -58,7 +58,6 @@ const MessageForm = () => {
 
       setMessageText('')
       console.log('✅ MessageForm: Message sent via HTTP')
-
     } catch (error) {
       console.error('Send message error:', error)
 
@@ -144,7 +143,8 @@ const MessageForm = () => {
       {pendingMessages.length > 0 && (
         <div className="mb-2">
           <Badge bg="warning" text="dark" className="mb-2">
-            📋 {t('messages.pending', { count: pendingMessages.length })}
+            📋
+            {t('messages.pending', { count: pendingMessages.length })}
           </Badge>
 
           {/* Детализация сообщений в очереди */}

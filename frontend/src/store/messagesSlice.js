@@ -13,7 +13,8 @@ export const fetchMessages = createAsyncThunk(
         },
       })
       return response.data
-    } catch (error) {
+    }
+    catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Ошибка загрузки сообщений')
     }
   },
@@ -37,7 +38,8 @@ export const sendMessage = createAsyncThunk(
       })
 
       return response.data
-    } catch (error) {
+    }
+    catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Ошибка отправки сообщения')
     }
   },
@@ -84,7 +86,8 @@ const messagesSlice = createSlice({
           )
           console.log('🗑️ messagesSlice: Removed from pending queue')
         }
-      } else if (existingByTempId && action.payload.id) {
+      }
+      else if (existingByTempId && action.payload.id) {
         // Заменяем временное сообщение на постоянное от сервера
         const index = state.items.findIndex(msg => msg.tempId === action.payload.tempId)
         if (index !== -1) {
@@ -96,7 +99,8 @@ const messagesSlice = createSlice({
             msg => msg.tempId !== action.payload.tempId,
           )
         }
-      } else {
+      }
+      else {
         console.log('♻️ messagesSlice: Message already exists, skipping')
       }
     },
@@ -163,16 +167,16 @@ const messagesSlice = createSlice({
     removeMessage: (state, action) => {
       state.items = state.items.filter(message => message.id !== action.payload.id)
     },
-    clearMessages: state => {
+    clearMessages: (state) => {
       state.items = []
     },
     removeMessagesByChannelId: (state, action) => {
       state.items = state.items.filter(message => message.channelId !== action.payload)
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchMessages.pending, state => {
+      .addCase(fetchMessages.pending, (state) => {
         console.log('⏳ messagesSlice: Fetching messages...')
         state.loading = true
         state.error = null

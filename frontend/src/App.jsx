@@ -14,11 +14,11 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route
           path="/"
-          element={
+          element={(
             <ProtectedRoute>
               <MainPage />
             </ProtectedRoute>
-          }
+          )}
         />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

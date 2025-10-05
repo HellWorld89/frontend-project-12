@@ -20,7 +20,8 @@ export const loginUser = createAsyncThunk(
       localStorage.setItem('username', userUsername)
 
       return { token, username: userUsername }
-    } catch (error) {
+    }
+    catch (error) {
       if (error.response?.status === 401) {
         return rejectWithValue('Неверные имя пользователя или пароль')
       }
@@ -50,7 +51,8 @@ export const registerUser = createAsyncThunk(
       localStorage.setItem('username', userUsername)
 
       return { token, username: userUsername }
-    } catch (error) {
+    }
+    catch (error) {
       // Обработка ошибок регистрации
       if (error.response?.status === 409) {
         return rejectWithValue('Такой пользователь уже существует')
@@ -74,7 +76,7 @@ const authSlice = createSlice({
     error: null,
   },
   reducers: {
-    logout: state => {
+    logout: (state) => {
       localStorage.removeItem('token')
       localStorage.removeItem('username')
       state.token = null
@@ -82,13 +84,13 @@ const authSlice = createSlice({
       state.isAuthenticated = false
       state.error = null
     },
-    clearError: state => {
+    clearError: (state) => {
       state.error = null
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, state => {
+      .addCase(loginUser.pending, (state) => {
         state.loading = true
         state.error = null
       })
@@ -106,7 +108,7 @@ const authSlice = createSlice({
         state.username = null
         state.isAuthenticated = false
       })
-      .addCase(registerUser.pending, state => {
+      .addCase(registerUser.pending, (state) => {
         state.loading = true
         state.error = null
       })

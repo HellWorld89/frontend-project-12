@@ -21,15 +21,17 @@ const Navigation = () => {
             )}
           </Nav>
           <Nav>
-            {isAuthenticated ? (
-              <Button variant="outline-light" size="sm">
-                Logout
-              </Button>
-            ) : (
-              <LinkContainer to="/login">
-                <Nav.Link>Login</Nav.Link>
-              </LinkContainer>
-            )}
+            {isAuthenticated
+              ? (
+                  <Button variant="outline-light" size="sm">
+                    Logout
+                  </Button>
+                )
+              : (
+                  <LinkContainer to="/login">
+                    <Nav.Link>Login</Nav.Link>
+                  </LinkContainer>
+                )}
           </Nav>
         </Navbar.Collapse>
       </Container>

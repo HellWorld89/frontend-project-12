@@ -31,7 +31,7 @@ export const useWebSocket = () => {
         })
 
         // Обработчик новых сообщений
-        const handleNewMessage = message => {
+        const handleNewMessage = (message) => {
           if (!mounted) {
             console.log('🚫 useWebSocket: Component unmounted, ignoring message')
             return
@@ -42,7 +42,7 @@ export const useWebSocket = () => {
         }
 
         // Обработчик новых каналов
-        const handleNewChannel = channel => {
+        const handleNewChannel = (channel) => {
           if (!mounted) return
           console.log('📨 useWebSocket: Received newChannel event:', channel)
           dispatch(addChannelFromServer(channel))
@@ -56,7 +56,7 @@ export const useWebSocket = () => {
         }
 
         // Обработчик переименования каналов
-        const handleRenameChannel = channel => {
+        const handleRenameChannel = (channel) => {
           if (!mounted) return
           console.log('📨 useWebSocket: Received renameChannel event:', channel)
           dispatch(updateChannelFromServer(channel))
@@ -75,7 +75,8 @@ export const useWebSocket = () => {
         eventHandlers.current.add(handleRenameChannel)
 
         console.log('👂 useWebSocket: Subscribed to all events')
-      } catch (error) {
+      }
+      catch (error) {
         console.error('💥 useWebSocket: Failed to initialize WebSocket:', error)
       }
     }
@@ -88,7 +89,7 @@ export const useWebSocket = () => {
 
       // Отписываемся от всех событий
       if (socketInstance) {
-        eventHandlers.current.forEach(handler => {
+        eventHandlers.current.forEach((handler) => {
           socketInstance.off('newMessage', handler)
           socketInstance.off('newChannel', handler)
           socketInstance.off('removeChannel', handler)

@@ -124,21 +124,23 @@ const LoginPage = () => {
                         className="w-100"
                         disabled={loading || isSubmitting}
                       >
-                        {loading ? (
-                          <>
-                            <Spinner
-                              as="span"
-                              animation="border"
-                              size="sm"
-                              role="status"
-                              aria-hidden="true"
-                              className="me-2"
-                            />
-                            {t('common.loading')}
-                          </>
-                        ) : (
-                          t('auth.signIn')
-                        )}
+                        {loading
+                          ? (
+                              <>
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                  className="me-2"
+                                />
+                                {t('common.loading')}
+                              </>
+                            )
+                          : (
+                              t('auth.signIn')
+                            )}
                       </Button>
                     </Form>
                   )}
@@ -146,7 +148,8 @@ const LoginPage = () => {
 
                 <div className="text-center mt-3">
                   <p className="mb-0">
-                    {t('auth.noAccount')}{' '}
+                    {t('auth.noAccount')}
+                    {' '}
                     <Link to="/signup" className="text-decoration-none">
                       {t('auth.signUp')}
                     </Link>

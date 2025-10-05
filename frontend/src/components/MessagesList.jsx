@@ -36,7 +36,11 @@ const MessagesList = () => {
   return (
     <div className="messages-list d-flex flex-column h-100">
       <div className="messages-header border-bottom p-3">
-        <h5 className="mb-0"># {currentChannel?.name || ''}</h5>
+        <h5 className="mb-0">
+          #
+          {' '}
+          {currentChannel?.name || ''}
+        </h5>
         <small className="text-muted">
           {t('messages.messageCount', { count: filteredMessages.length })}
         </small>
@@ -47,12 +51,21 @@ const MessagesList = () => {
           {filteredMessages.map(message => (
             <ListGroup.Item key={message.id || message.tempId} className="border-0 px-0 py-2">
               <div className="message">
-                <strong>{message.username}:</strong>
+                <strong>
+                  {message.username}
+                  :
+                </strong>
                 <span className="ms-2">
                   {/* Фильтруем нецензурные слова в отображаемом тексте сообщения */}
                   {filterProfanity(message.body)}
                 </span>
-                {message.tempId && <small className="text-muted ms-2">({t('messages.sending')})</small>}
+                {message.tempId && (
+                  <small className="text-muted ms-2">
+                    (
+                    {t('messages.sending')}
+                    )
+                  </small>
+                )}
               </div>
             </ListGroup.Item>
           ))}

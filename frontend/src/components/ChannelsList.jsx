@@ -78,6 +78,7 @@ const ChannelsList = () => {
       <i className="bi bi-three-dots-vertical"></i>
     </button>
   ))
+  CustomToggle.displayName = 'CustomToggle'
 
   return (
     <div className="channels-list">
@@ -124,7 +125,8 @@ const ChannelsList = () => {
               <Dropdown onClick={e => e.stopPropagation()}>
                 <Dropdown.Toggle
                   as={CustomToggle}
-                  aria-label="Управление каналом">
+                  aria-label="Управление каналом"
+                >
                   <i className="bi bi-three-dots-vertical"></i>
                 </Dropdown.Toggle>
 
