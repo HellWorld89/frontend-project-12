@@ -66,12 +66,12 @@ const messagesSlice = createSlice({
 
       // Ищем сообщение по ID (для сообщений от сервера)
       const existingById = action.payload.id
-        ? state.items.find(msg => msg.id === action.payload.id)
+        ? state.items.find((msg) => msg.id === action.payload.id)
         : null
 
       // Ищем сообщение по tempId (для временных сообщений из очереди)
       const existingByTempId = action.payload.tempId
-        ? state.items.find(msg => msg.tempId === action.payload.tempId)
+        ? state.items.find((msg) => msg.tempId === action.payload.tempId)
         : null
 
       if (!existingById && !existingByTempId) {
@@ -82,21 +82,21 @@ const messagesSlice = createSlice({
         // Удаляем из очереди, если есть tempId
         if (action.payload.tempId) {
           state.pendingMessages = state.pendingMessages.filter(
-            msg => msg.tempId !== action.payload.tempId,
+            (msg) => msg.tempId !== action.payload.tempId,
           )
           console.log('🗑️ messagesSlice: Removed from pending queue')
         }
       }
       else if (existingByTempId && action.payload.id) {
         // Заменяем временное сообщение на постоянное от сервера
-        const index = state.items.findIndex(msg => msg.tempId === action.payload.tempId)
+        const index = state.items.findIndex((msg) => msg.tempId === action.payload.tempId)
         if (index !== -1) {
           state.items[index] = action.payload
           console.log('🔄 messagesSlice: Temporary message replaced with server message')
 
           // Удаляем из очереди
           state.pendingMessages = state.pendingMessages.filter(
-            msg => msg.tempId !== action.payload.tempId,
+            (msg) => msg.tempId !== action.payload.tempId,
           )
         }
       }
@@ -133,7 +133,7 @@ const messagesSlice = createSlice({
       })
 
       state.pendingMessages = state.pendingMessages.filter(
-        msg => msg.tempId !== action.payload.tempId,
+        (msg) => msg.tempId !== action.payload.tempId,
       )
 
       console.log('✅ messagesSlice: Pending message removed', {
@@ -143,7 +143,7 @@ const messagesSlice = createSlice({
     // ДОБАВЛЯЕМ НОВОЕ ДЕЙСТВИЕ
     updatePendingMessage: (state, action) => {
       const { tempId, ...updates } = action.payload
-      const messageIndex = state.pendingMessages.findIndex(msg => msg.tempId === tempId)
+      const messageIndex = state.pendingMessages.findIndex((msg) => msg.tempId === tempId)
       if (messageIndex !== -1) {
         state.pendingMessages[messageIndex] = { ...state.pendingMessages[messageIndex], ...updates }
         console.log('🔄 messagesSlice: Pending message updated', { tempId, updates })
@@ -151,7 +151,7 @@ const messagesSlice = createSlice({
     },
     incrementMessageAttempts: (state, action) => {
       const message = state.pendingMessages.find(
-        msg => msg.tempId === action.payload.tempId,
+        (msg) => msg.tempId === action.payload.tempId,
       )
       if (message) {
         message.attempts += 1
@@ -159,24 +159,24 @@ const messagesSlice = createSlice({
       }
     },
     updateMessage: (state, action) => {
-      const index = state.items.findIndex(message => message.id === action.payload.id)
+      const index = state.items.findIndex((message) => message.id === action.payload.id)
       if (index !== -1) {
         state.items[index] = action.payload
       }
     },
     removeMessage: (state, action) => {
-      state.items = state.items.filter(message => message.id !== action.payload.id)
+      state.items = state.items.filter((message) => message.id !== action.payload.id)
     },
-    clearMessages: state => {
+    clearMessages: (state) => {
       state.items = []
     },
     removeMessagesByChannelId: (state, action) => {
-      state.items = state.items.filter(message => message.channelId !== action.payload)
+      state.items = state.items.filter((message) => message.channelId !== action.payload)
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchMessages.pending, state => {
+      .addCase(fetchMessages.pending, (state) => {
         console.log('⏳ messagesSlice: Fetching messages...')
         state.loading = true
         state.error = null

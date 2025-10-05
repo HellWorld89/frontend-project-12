@@ -32,7 +32,7 @@ export default defineConfig([
       'react/react-in-jsx-scope': 0,
       'react/jsx-uses-react': 0,
       '@stylistic/semi': ['error', 'never'],
-      '@stylistic/arrow-parens': ['error', 'as-needed'],
+      '@stylistic/arrow-parens': ['error', 'always'],
       '@stylistic/indent': ['error', 2],
       '@stylistic/eol-last': ['error', 'always'],
     },

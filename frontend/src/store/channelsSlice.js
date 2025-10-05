@@ -93,12 +93,12 @@ const channelsSlice = createSlice({
     setCurrentChannel: (state, action) => {
       state.currentChannelId = action.payload
     },
-    clearRecentlyCreatedChannel: state => {
+    clearRecentlyCreatedChannel: (state) => {
       state.recentlyCreatedChannelId = null
     },
     // Добавляем проверку на дубликаты
     addChannelFromServer: (state, action) => {
-      const existingChannel = state.items.find(channel => channel.id === action.payload.id)
+      const existingChannel = state.items.find((channel) => channel.id === action.payload.id)
       if (!existingChannel) {
         state.items.push(action.payload)
 
@@ -110,7 +110,7 @@ const channelsSlice = createSlice({
       }
     },
     updateChannelFromServer: (state, action) => {
-      const index = state.items.findIndex(channel => channel.id === action.payload.id)
+      const index = state.items.findIndex((channel) => channel.id === action.payload.id)
       if (index !== -1) {
         // Обновляем только если данные действительно изменились
         if (JSON.stringify(state.items[index]) !== JSON.stringify(action.payload)) {
@@ -119,12 +119,12 @@ const channelsSlice = createSlice({
       }
     },
     removeChannelFromServer: (state, action) => {
-      state.items = state.items.filter(channel => channel.id !== action.payload.id)
+      state.items = state.items.filter((channel) => channel.id !== action.payload.id)
       if (state.currentChannelId === action.payload.id) {
         state.currentChannelId = state.items[0]?.id || null
       }
     },
-    resetOperationStatus: state => {
+    resetOperationStatus: (state) => {
       state.operationStatus = {
         type: null,
         loading: false,
@@ -132,9 +132,9 @@ const channelsSlice = createSlice({
       }
     },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchChannels.pending, state => {
+      .addCase(fetchChannels.pending, (state) => {
         state.loading = true
         state.error = null
       })
@@ -147,14 +147,14 @@ const channelsSlice = createSlice({
         state.loading = false
         state.error = action.payload
       })
-      .addCase(createChannel.pending, state => {
+      .addCase(createChannel.pending, (state) => {
         state.operationStatus = {
           type: 'create',
           loading: true,
           error: null,
         }
       })
-      .addCase(createChannel.fulfilled, state => {
+      .addCase(createChannel.fulfilled, (state) => {
         state.operationStatus.loading = false
         // Просто сбрасываем статус загрузки, вся логика в модальном окне
         console.log('✅ Channel creation HTTP request completed')
@@ -168,11 +168,11 @@ const channelsSlice = createSlice({
         state.recentlyCreatedChannelId = null
       })
       // Аналогично для renameChannel и deleteChannel
-      .addCase(renameChannel.fulfilled, state => {
+      .addCase(renameChannel.fulfilled, (state) => {
         state.operationStatus.loading = false
         // Обновление придет через WebSocket
       })
-      .addCase(deleteChannel.fulfilled, state => {
+      .addCase(deleteChannel.fulfilled, (state) => {
         state.operationStatus.loading = false
         // Удаление придет через WebSocket
       })

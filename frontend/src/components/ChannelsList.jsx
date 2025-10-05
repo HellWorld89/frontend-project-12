@@ -11,8 +11,8 @@ import { filterProfanity } from '../utils/profanityFilter'
 const ChannelsList = () => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
-  const { items: channels, currentChannelId } = useSelector(state => state.channels)
-  const { username } = useSelector(state => state.auth)
+  const { items: channels, currentChannelId } = useSelector((state) => state.channels)
+  const { username } = useSelector((state) => state.auth)
 
   const [showAddModal, setShowAddModal] = useState(false)
   const [showRenameModal, setShowRenameModal] = useState(false)
@@ -32,7 +32,7 @@ const ChannelsList = () => {
     console.log('Delete modal should open for channel:', channel.id, channel.name)
   }
 
-  const canManageChannel = channel => {
+  const canManageChannel = (channel) => {
     return !channel.creator || channel.creator === username || channel.username === username
   }
 
@@ -41,7 +41,7 @@ const ChannelsList = () => {
       ref={ref}
       type="button"
       className="channel-dropdown-toggle btn btn-sm btn-outline-secondary border-0"
-      onClick={e => {
+      onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()
         onClick(e)
@@ -57,7 +57,7 @@ const ChannelsList = () => {
         lineHeight: 1,
         minHeight: '24px',
       }}
-      onMouseDown={e => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
       aria-label={t('channels.manageChannel')}
     >
       <span
@@ -95,7 +95,7 @@ const ChannelsList = () => {
       </div>
 
       <ListGroup variant="flush" className="channels-container">
-        {channels.map(channel => (
+        {channels.map((channel) => (
           <ListGroup.Item
             key={channel.id}
             as="button"
@@ -104,7 +104,7 @@ const ChannelsList = () => {
             aria-label={`Канал ${filterProfanity(channel.name)}`}
             active={channel.id === currentChannelId}
             onClick={() => dispatch(setCurrentChannel(channel.id))}
-            onKeyDown={e => {
+            onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault()
                 dispatch(setCurrentChannel(channel.id))
@@ -122,7 +122,7 @@ const ChannelsList = () => {
             </div>
 
             {canManageChannel(channel) && (
-              <Dropdown onClick={e => e.stopPropagation()}>
+              <Dropdown onClick={(e) => e.stopPropagation()}>
                 <Dropdown.Toggle
                   as={CustomToggle}
                   aria-label="Управление каналом"
@@ -133,7 +133,7 @@ const ChannelsList = () => {
                 <Dropdown.Menu align="end">
                   <Dropdown.Item
                     as="button"
-                    onClick={e => handleRenameClick(channel, e)}
+                    onClick={(e) => handleRenameClick(channel, e)}
                     className="d-flex align-items-center border-0 bg-transparent"
                   >
                     <i className="bi bi-pencil me-2"></i>
@@ -141,7 +141,7 @@ const ChannelsList = () => {
                   </Dropdown.Item>
                   <Dropdown.Item
                     as="button"
-                    onClick={e => handleDeleteClick(channel, e)}
+                    onClick={(e) => handleDeleteClick(channel, e)}
                     className="d-flex align-items-center text-danger border-0 bg-transparent"
                   >
                     <i className="bi bi-trash me-2"></i>

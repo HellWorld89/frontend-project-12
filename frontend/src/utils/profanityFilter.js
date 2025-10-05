@@ -13,7 +13,7 @@ profanity.add(['boobs', 'fuck', 'ass', 'shit', 'piss', 'cunt', 'cock', 'dick', '
  * @param {string} text - Исходный текст
  * @returns {string} Отфильтрованный текст
  */
-export const filterProfanity = text => {
+export const filterProfanity = (text) => {
   if (!text || typeof text !== 'string') return text
 
   return profanity.clean(text)
@@ -24,7 +24,7 @@ export const filterProfanity = text => {
  * @param {string} text - Текст для проверки
  * @returns {boolean} true если содержит нецензурные слова
  */
-export const hasProfanity = text => {
+export const hasProfanity = (text) => {
   if (!text || typeof text !== 'string') return false
 
   return profanity.check(text)
@@ -35,7 +35,7 @@ export const hasProfanity = text => {
  * @param {string} text - Текст для анализа
  * @returns {string[]} Массив нецензурных слов
  */
-export const getProfanityWords = text => {
+export const getProfanityWords = (text) => {
   if (!text || typeof text !== 'string') return []
 
   return profanity.search(text)

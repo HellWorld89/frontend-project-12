@@ -6,13 +6,13 @@ import { filterProfanity } from '../utils/profanityFilter'
 
 const MessagesList = () => {
   const { t } = useTranslation()
-  const { items: messages } = useSelector(state => state.messages)
-  const { currentChannelId, items: channels } = useSelector(state => state.channels)
+  const { items: messages } = useSelector((state) => state.messages)
+  const { currentChannelId, items: channels } = useSelector((state) => state.channels)
   const messagesEndRef = useRef(null)
 
   // Фильтруем сообщения по текущему каналу
   const filteredMessages = messages.filter(
-    message => message.channelId === currentChannelId,
+    (message) => message.channelId === currentChannelId,
   )
 
   // Автоматическая прокрутка к новому сообщению
@@ -27,7 +27,7 @@ const MessagesList = () => {
     messages: filteredMessages,
   })
 
-  const currentChannel = channels.find(ch => ch.id === currentChannelId)
+  const currentChannel = channels.find((ch) => ch.id === currentChannelId)
 
   if (!currentChannelId) {
     return <div className="p-3">{t('messages.selectChannel')}</div>
@@ -48,7 +48,7 @@ const MessagesList = () => {
 
       <div className="messages-content flex-grow-1 p-3" style={{ overflowY: 'auto' }}>
         <ListGroup variant="flush">
-          {filteredMessages.map(message => (
+          {filteredMessages.map((message) => (
             <ListGroup.Item key={message.id || message.tempId} className="border-0 px-0 py-2">
               <div className="message">
                 <strong>

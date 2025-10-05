@@ -7,8 +7,8 @@ import { deleteChannel, resetOperationStatus } from '../../store/channelsSlice'
 const DeleteChannelModal = ({ show, onHide, channel }) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
-  const { operationStatus } = useSelector(state => state.channels)
-  const { currentChannelId } = useSelector(state => state.channels)
+  const { operationStatus } = useSelector((state) => state.channels)
+  const { currentChannelId } = useSelector((state) => state.channels)
 
   const handleDelete = async () => {
     if (!channel) return

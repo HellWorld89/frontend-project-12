@@ -12,15 +12,15 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const inputRef = useRef(null)
-  const { items: channels } = useSelector(state => state.channels)
-  const { operationStatus } = useSelector(state => state.channels)
+  const { items: channels } = useSelector((state) => state.channels)
+  const { operationStatus } = useSelector((state) => state.channels)
   const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set())
 
   useEffect(() => {
     if (show && channel) {
       const names = channels
-        .filter(ch => ch.id !== channel.id)
-        .map(ch => ch.name.toLowerCase())
+        .filter((ch) => ch.id !== channel.id)
+        .map((ch) => ch.name.toLowerCase())
       setChannelNamesOnOpen(new Set(names))
 
       setTimeout(() => {
@@ -44,7 +44,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
         .test(
           'unique-name',
           t('validation.channelNameUnique'),
-          value => !channelNamesOnOpen.has(value.toLowerCase()),
+          (value) => !channelNamesOnOpen.has(value.toLowerCase()),
         )
         .required(t('validation.required')),
     })
@@ -133,7 +133,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                     onBlur={handleBlur}
                     isInvalid={touched.name && !!errors.name}
                     disabled={isSubmitting || operationStatus.loading}
-                    onKeyDown={e => {
+                    onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
                         handleSubmit()
