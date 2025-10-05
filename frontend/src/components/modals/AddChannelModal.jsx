@@ -19,15 +19,15 @@ const AddChannelModal = ({ show, onHide }) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const inputRef = useRef(null)
-  const { items: channels } = useSelector(state => state.channels)
-  const { operationStatus } = useSelector(state => state.channels)
+  const { items: channels } = useSelector((state) => state.channels)
+  const { operationStatus } = useSelector((state) => state.channels)
 
   const [createdChannelId, setCreatedChannelId] = useState(null)
   const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set())
 
   useEffect(() => {
     if (createdChannelId && show) {
-      const newChannelExists = channels.some(channel => channel.id === createdChannelId)
+      const newChannelExists = channels.some((channel) => channel.id === createdChannelId)
 
       if (newChannelExists) {
         console.log('✅ New channel detected in list, switching to it:', createdChannelId)
@@ -73,7 +73,7 @@ const AddChannelModal = ({ show, onHide }) => {
         .test(
           'unique-name',
           t('validation.channelNameUnique'),
-          value => !channelNamesOnOpen.has(value.toLowerCase()),
+          (value) => !channelNamesOnOpen.has(value.toLowerCase()),
         )
         .required(t('validation.required')),
     })
@@ -81,7 +81,7 @@ const AddChannelModal = ({ show, onHide }) => {
 
   useEffect(() => {
     if (show) {
-      const names = channels.map(channel => channel.name.toLowerCase())
+      const names = channels.map((channel) => channel.name.toLowerCase())
       setChannelNamesOnOpen(new Set(names))
     }
   }, [show, channels])
@@ -102,7 +102,8 @@ const AddChannelModal = ({ show, onHide }) => {
         console.log('✅ Channel creation response received:', result.id)
       }
       resetForm()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error creating channel:', error)
       // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
@@ -116,8 +117,8 @@ const AddChannelModal = ({ show, onHide }) => {
     onHide()
   }
 
-  const isWaitingForWebSocket = createdChannelId && !channels.some(ch => ch.id === createdChannelId)
-  const isChannelCreated = createdChannelId && channels.some(ch => ch.id === createdChannelId)
+  const isWaitingForWebSocket = createdChannelId && !channels.some((ch) => ch.id === createdChannelId)
+  const isChannelCreated = createdChannelId && channels.some((ch) => ch.id === createdChannelId)
 
   return (
     <Modal show={show} onHide={handleHide} centered>
@@ -170,7 +171,7 @@ const AddChannelModal = ({ show, onHide }) => {
                   onBlur={handleBlur}
                   isInvalid={touched.name && !!errors.name}
                   disabled={isSubmitting || operationStatus.loading || isWaitingForWebSocket || isChannelCreated}
-                  onKeyDown={e => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
                       handleSubmit()
@@ -183,7 +184,8 @@ const AddChannelModal = ({ show, onHide }) => {
                 </Form.Control.Feedback>
                 {!errors.name && values.name.length > 0 && (
                   <Form.Text className="text-muted">
-                    ✓ {t('channels.nameAvailable')}
+                    ✓
+                    {t('channels.nameAvailable')}
                   </Form.Text>
                 )}
               </Form.Group>
@@ -201,29 +203,35 @@ const AddChannelModal = ({ show, onHide }) => {
                 variant="primary"
                 type="submit"
                 disabled={
-                  isSubmitting ||
-                  operationStatus.loading ||
-                  !!errors.name ||
-                  !values.name.trim() ||
-                  isWaitingForWebSocket ||
-                  isChannelCreated
+                  isSubmitting
+                  || operationStatus.loading
+                  || !!errors.name
+                  || !values.name.trim()
+                  || isWaitingForWebSocket
+                  || isChannelCreated
                 }
               >
-                {isSubmitting || operationStatus.loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" />
-                    {t('channels.adding')}
-                  </>
-                ) : isWaitingForWebSocket ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" />
-                    {t('common.loading')}
-                  </>
-                ) : isChannelCreated ? (
-                  '✅ ' + t('common.success')
-                ) : (
-                  t('channels.add')
-                )}
+                {isSubmitting || operationStatus.loading
+                  ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      {t('channels.adding')}
+                    </>
+                  )
+                  : isWaitingForWebSocket
+                    ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" />
+                        {t('common.loading')}
+                      </>
+                    )
+                    : isChannelCreated
+                      ? (
+                        '✅ ' + t('common.success')
+                      )
+                      : (
+                        t('channels.add')
+                      )}
               </Button>
             </Modal.Footer>
           </Form>

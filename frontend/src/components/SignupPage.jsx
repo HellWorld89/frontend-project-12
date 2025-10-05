@@ -11,7 +11,7 @@ import Header from './Header'
 const SignupPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth)
   const [showError, setShowError] = useState(false)
   const { t } = useTranslation()
 
@@ -56,9 +56,11 @@ const SignupPage = () => {
       })).unwrap()
 
       console.log('✅ Registration successful:', result)
-    } catch (error) {
+    }
+    catch (error) {
       console.error('❌ Registration failed:', error)
-    } finally {
+    }
+    finally {
       setSubmitting(false)
     }
   }
@@ -165,21 +167,21 @@ const SignupPage = () => {
                       >
                         {loading
                           ? (
-                              <>
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  role="status"
-                                  aria-hidden="true"
-                                  className="me-2"
-                                />
-                                {t('common.loading')}
-                              </>
-                            )
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                className="me-2"
+                              />
+                              {t('common.loading')}
+                            </>
+                          )
                           : (
-                              t('auth.signUp')
-                            )}
+                            t('auth.signUp')
+                          )}
                       </Button>
                     </Form>
                   )}

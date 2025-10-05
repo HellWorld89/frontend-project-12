@@ -9,7 +9,6 @@ import { fetchChannels, setCurrentChannel } from '../store/channelsSlice'
 import { fetchMessages } from '../store/messagesSlice'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { useMessageQueue } from '../hooks/useMessageQueue'
-import TestMessageForm from './TestMessageForm'
 import ChannelsList from './ChannelsList'
 import MessagesList from './MessagesList'
 import MessageForm from './MessageForm'
@@ -20,8 +19,8 @@ const MainPage = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const { isAuthenticated } = useSelector(state => state.auth)
-  const { items: channels, currentChannelId } = useSelector(state => state.channels)
+  const { isAuthenticated } = useSelector((state) => state.auth)
+  const { items: channels, currentChannelId } = useSelector((state) => state.channels)
 
   const [dataLoaded, setDataLoaded] = useState(false)
   const [loadError, setLoadError] = useState(null)
@@ -59,13 +58,15 @@ const MainPage = () => {
         if (messagesResult.status === 'rejected') {
           console.warn('⚠️ MainPage: Messages load failed:', messagesResult.reason)
           toast.warn(t('toast.dataLoadError'))
-        } else {
+        }
+        else {
           console.log('✅ MainPage: Messages loaded:', messagesResult.value.length, 'items')
         }
 
         setDataLoaded(true)
         console.log('🎉 MainPage: Data loading completed')
-      } catch (error) {
+      }
+      catch (error) {
         console.error('💥 MainPage: Error loading data:', error)
         setLoadError(error.message)
         setDataLoaded(true)
@@ -87,7 +88,7 @@ const MainPage = () => {
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
-      const generalChannel = channels.find(channel => channel.name === 'general') || channels[0]
+      const generalChannel = channels.find((channel) => channel.name === 'general') || channels[0]
       if (generalChannel) {
         dispatch(setCurrentChannel(generalChannel.id))
       }
@@ -165,7 +166,6 @@ const MainPage = () => {
       <Header />
 
       <ConnectionStatus />
-      <TestMessageForm />
       <button
         onClick={handleTestRollbar}
         style={{ position: 'fixed', bottom: '10px', right: '10px', zIndex: 1000 }}

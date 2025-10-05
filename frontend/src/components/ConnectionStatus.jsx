@@ -44,7 +44,8 @@ const ConnectionStatus = () => {
           toast.success(t('toast.connected'), {
             toastId: 'socket-connected',
           })
-        } else {
+        }
+        else {
           toast.warn(t('toast.reconnecting'), {
             toastId: 'socket-reconnecting',
           })

@@ -18,9 +18,9 @@ const MessageForm = () => {
 
   const dispatch = useDispatch()
   const { t } = useTranslation()
-  const { currentChannelId } = useSelector(state => state.channels)
-  const { pendingMessages } = useSelector(state => state.messages)
-  const username = useSelector(state => state.auth.username)
+  const { currentChannelId } = useSelector((state) => state.channels)
+  const { pendingMessages } = useSelector((state) => state.messages)
+  const username = useSelector((state) => state.auth.username)
 
   const generateTempId = () => {
     return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
@@ -30,7 +30,7 @@ const MessageForm = () => {
     return messageText.trim() && currentChannelId && !isSending
   }
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     trackUserAction('send_message', {
@@ -58,7 +58,8 @@ const MessageForm = () => {
 
       setMessageText('')
       console.log('✅ MessageForm: Message sent via HTTP')
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Send message error:', error)
 
       trackError(error, {
@@ -83,25 +84,26 @@ const MessageForm = () => {
 
       // Показываем toast-уведомление об ошибке отправки
       toast.warn(t('messages.errorSending'))
-    } finally {
+    }
+    finally {
       setIsSending(false)
     }
   }
 
-  const handleKeyPress = e => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSubmit(e)
     }
   }
 
-  const handleRemovePendingMessage = tempId => {
+  const handleRemovePendingMessage = (tempId) => {
     dispatch(removePendingMessage({ tempId }))
     // Показываем toast-уведомление об удалении из очереди
     toast.info(t('messages.removeFromQueue'))
   }
 
-  const handleRetryMessage = async message => {
+  const handleRetryMessage = async (message) => {
     if (message.isSending) return
 
     try {
@@ -119,7 +121,8 @@ const MessageForm = () => {
 
       // Показываем toast-уведомление об успешной отправке из очереди
       toast.success(t('messages.sent'))
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Retry failed:', error)
       dispatch(updatePendingMessage({
         tempId: message.tempId,
@@ -148,7 +151,7 @@ const MessageForm = () => {
           </Badge>
 
           {/* Детализация сообщений в очереди */}
-          {pendingMessages.slice(0, 3).map(message => (
+          {pendingMessages.slice(0, 3).map((message) => (
             <div key={message.tempId} className="pending-message-item small text-muted mb-1">
               <div className="d-flex justify-content-between align-items-center">
                 <span>
@@ -195,7 +198,7 @@ const MessageForm = () => {
             placeholder={t('messages.enterMessage')}
             aria-label={t('messages.enterMessage')}
             value={messageText}
-            onChange={e => setMessageText(e.target.value)}
+            onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isSending}
           />

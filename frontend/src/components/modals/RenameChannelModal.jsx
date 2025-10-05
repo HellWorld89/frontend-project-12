@@ -12,15 +12,15 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
   const dispatch = useDispatch()
   const { t } = useTranslation()
   const inputRef = useRef(null)
-  const { items: channels } = useSelector(state => state.channels)
-  const { operationStatus } = useSelector(state => state.channels)
+  const { items: channels } = useSelector((state) => state.channels)
+  const { operationStatus } = useSelector((state) => state.channels)
   const [channelNamesOnOpen, setChannelNamesOnOpen] = useState(new Set())
 
   useEffect(() => {
     if (show && channel) {
       const names = channels
-        .filter(ch => ch.id !== channel.id)
-        .map(ch => ch.name.toLowerCase())
+        .filter((ch) => ch.id !== channel.id)
+        .map((ch) => ch.name.toLowerCase())
       setChannelNamesOnOpen(new Set(names))
 
       setTimeout(() => {
@@ -29,7 +29,8 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
           inputRef.current.select()
         }
       }, 100)
-    } else {
+    }
+    else {
       dispatch(resetOperationStatus())
     }
   }, [show, channel, channels, dispatch])
@@ -43,7 +44,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
         .test(
           'unique-name',
           t('validation.channelNameUnique'),
-          value => !channelNamesOnOpen.has(value.toLowerCase()),
+          (value) => !channelNamesOnOpen.has(value.toLowerCase()),
         )
         .required(t('validation.required')),
     })
@@ -68,11 +69,13 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
 
       resetForm()
       onHide()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error renaming channel:', error)
       // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
-    } finally {
+    }
+    finally {
       setSubmitting(false)
     }
   }
@@ -130,7 +133,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                     onBlur={handleBlur}
                     isInvalid={touched.name && !!errors.name}
                     disabled={isSubmitting || operationStatus.loading}
-                    onKeyDown={e => {
+                    onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault()
                         handleSubmit()
@@ -143,7 +146,8 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                   </Form.Control.Feedback>
                   {!errors.name && values.name.length > 0 && isChanged && (
                     <Form.Text className="text-muted">
-                      ✓ {t('channels.nameAvailable')}
+                      ✓
+                      {t('channels.nameAvailable')}
                     </Form.Text>
                   )}
                 </Form.Group>
@@ -161,21 +165,23 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                   variant="primary"
                   type="submit"
                   disabled={
-                    isSubmitting ||
-                    operationStatus.loading ||
-                    !!errors.name ||
-                    !values.name.trim() ||
-                    !isChanged
+                    isSubmitting
+                    || operationStatus.loading
+                    || !!errors.name
+                    || !values.name.trim()
+                    || !isChanged
                   }
                 >
-                  {(isSubmitting || operationStatus.loading) ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" />
-                      {t('channels.renaming')}
-                    </>
-                  ) : (
-                    t('channels.rename')
-                  )}
+                  {isSubmitting || operationStatus.loading
+                    ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" />
+                        {t('channels.renaming')}
+                      </>
+                    )
+                    : (
+                      t('channels.rename')
+                    )}
                 </Button>
               </Modal.Footer>
             </Form>

@@ -16,7 +16,7 @@ i18n
     resources,
     lng: 'ru',
     fallbackLng: 'ru',
-    debug: process.env.NODE_ENV === 'development',
+    debug: import.meta.env?.MODE === 'development' || false,
     interpolation: {
       escapeValue: false,
     },

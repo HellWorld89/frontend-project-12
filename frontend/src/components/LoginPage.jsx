@@ -18,7 +18,7 @@ const LoginPage = () => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth)
   const [showError, setShowError] = useState(false)
 
   // Редирект если уже авторизован
@@ -41,9 +41,11 @@ const LoginPage = () => {
 
     try {
       await dispatch(loginUser(values)).unwrap()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Login error:', error)
-    } finally {
+    }
+    finally {
       setSubmitting(false)
     }
   }
@@ -126,21 +128,21 @@ const LoginPage = () => {
                       >
                         {loading
                           ? (
-                              <>
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  role="status"
-                                  aria-hidden="true"
-                                  className="me-2"
-                                />
-                                {t('common.loading')}
-                              </>
-                            )
+                            <>
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                                className="me-2"
+                              />
+                              {t('common.loading')}
+                            </>
+                          )
                           : (
-                              t('auth.signIn')
-                            )}
+                            t('auth.signIn')
+                          )}
                       </Button>
                     </Form>
                   )}
