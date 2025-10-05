@@ -1,6 +1,6 @@
-# .eslintignore
 node_modules/
 dist/
-build/
-*.log
 coverage/
+*.min.js
+public/
+vite.config.*

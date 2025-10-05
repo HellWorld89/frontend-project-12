@@ -1,4 +1,4 @@
-import Rollbar from 'rollbar'
+import Rollbar from 'rollbar';
 
 // Конфигурация Rollbar
 const rollbarConfig = {
@@ -11,10 +11,7 @@ const rollbarConfig = {
     environment: import.meta.env.MODE || 'development',
   },
   enabled: true,
-  ignore: [
-    'CanceledError',
-    'Network Error',
-  ],
+  ignore: ['CanceledError', 'Network Error'],
   autoInstrument: {
     network: true,
     log: true,
@@ -22,31 +19,31 @@ const rollbarConfig = {
     navigation: true,
     connectivity: true,
   },
-}
+};
 
 // Создаем экземпляр Rollbar
-const rollbar = new Rollbar(rollbarConfig)
+const rollbar = new Rollbar(rollbarConfig);
 
 // Утилиты для ручного отслеживания
 export const trackError = (error, context = {}) => {
-  console.error('Tracked error:', error, context)
-  rollbar.error(error, context)
-}
+  console.error('Tracked error:', error, context);
+  rollbar.error(error, context);
+};
 
 export const trackWarning = (message, context = {}) => {
-  console.warn('Tracked warning:', message, context)
-  rollbar.warning(message, context)
-}
+  console.warn('Tracked warning:', message, context);
+  rollbar.warning(message, context);
+};
 
 export const trackInfo = (message, context = {}) => {
-  console.info('Tracked info:', message, context)
-  rollbar.info(message, context)
-}
+  console.info('Tracked info:', message, context);
+  rollbar.info(message, context);
+};
 
 export const trackCritical = (error, context = {}) => {
-  console.error('Tracked critical error:', error, context)
-  rollbar.critical(error, context)
-}
+  console.error('Tracked critical error:', error, context);
+  rollbar.critical(error, context);
+};
 
 // Утилита для отслеживания действий пользователя
 export const trackUserAction = (action, metadata = {}) => {
@@ -54,7 +51,7 @@ export const trackUserAction = (action, metadata = {}) => {
     action,
     ...metadata,
     timestamp: new Date().toISOString(),
-  })
-}
+  });
+};
 
-export default rollbar
+export default rollbar;

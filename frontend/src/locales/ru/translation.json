@@ -101,7 +101,7 @@
     "error": "Ошибка",
     "warning": "Предупреждение",
     "info": "Информация",
-    "channelAdded":  "Канал создан",
+    "channelAdded": "Канал создан",
     "channelRenamed": "Канал переименован",
     "channelDeleted": "Канал удалён",
     "networkError": "Ошибка сети",

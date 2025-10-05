@@ -1,143 +1,153 @@
-import { useState } from 'react'
-import { Form, Button, InputGroup, Badge } from 'react-bootstrap'
-import { useDispatch, useSelector } from 'react-redux'
-import { useTranslation } from 'react-i18next'
-import { toast } from 'react-toastify'
+import { useState } from "react";
+import { Form, Button, InputGroup, Badge } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
+import { toast } from "react-toastify";
 import {
   sendMessage,
   addPendingMessage,
   removePendingMessage,
   updatePendingMessage,
-} from '../store/messagesSlice'
-import { filterProfanity, hasProfanity } from '../utils/profanityFilter'
-import { trackError, trackUserAction } from '../utils/rollbar'
+} from "../store/messagesSlice";
+import { filterProfanity, hasProfanity } from "../utils/profanityFilter";
+import { trackError, trackUserAction } from "../utils/rollbar";
 
 const MessageForm = () => {
-  const [messageText, setMessageText] = useState('')
-  const [isSending, setIsSending] = useState(false)
+  const [messageText, setMessageText] = useState("");
+  const [isSending, setIsSending] = useState(false);
 
-  const dispatch = useDispatch()
-  const { t } = useTranslation()
-  const { currentChannelId } = useSelector((state) => state.channels)
-  const { pendingMessages } = useSelector((state) => state.messages)
-  const username = useSelector((state) => state.auth.username)
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
+  const { currentChannelId } = useSelector((state) => state.channels);
+  const { pendingMessages } = useSelector((state) => state.messages);
+  const username = useSelector((state) => state.auth.username);
 
   const generateTempId = () => {
-    return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  }
+    return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   const canSendMessage = () => {
-    return messageText.trim() && currentChannelId && !isSending
-  }
+    return messageText.trim() && currentChannelId && !isSending;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    trackUserAction('send_message', {
+    trackUserAction("send_message", {
       channelId: currentChannelId,
       messageLength: messageText.length,
-    })
+    });
 
-    if (!canSendMessage()) return
+    if (!canSendMessage()) return;
 
-    setIsSending(true)
+    setIsSending(true);
 
     try {
       // Фильтруем нецензурные слова перед отправкой
-      const filteredMessage = filterProfanity(messageText.trim())
+      const filteredMessage = filterProfanity(messageText.trim());
 
       // Показываем предупреждение если были отфильтрованы слова
-      if (hasProfanity(messageText.trim()) && filteredMessage !== messageText.trim()) {
-        toast.warn(t('profanity.filtered'))
+      if (
+        hasProfanity(messageText.trim()) &&
+        filteredMessage !== messageText.trim()
+      ) {
+        toast.warn(t("profanity.filtered"));
       }
 
-      await dispatch(sendMessage({
-        body: filteredMessage,
-        channelId: currentChannelId,
-      })).unwrap()
+      await dispatch(
+        sendMessage({
+          body: filteredMessage,
+          channelId: currentChannelId,
+        }),
+      ).unwrap();
 
-      setMessageText('')
-      console.log('✅ MessageForm: Message sent via HTTP')
-    }
-    catch (error) {
-      console.error('Send message error:', error)
+      setMessageText("");
+      console.log("✅ MessageForm: Message sent via HTTP");
+    } catch (error) {
+      console.error("Send message error:", error);
 
       trackError(error, {
-        context: 'MessageForm.handleSubmit',
+        context: "MessageForm.handleSubmit",
         channelId: currentChannelId,
         messageLength: messageText.length,
-      })
+      });
 
-      const tempId = generateTempId()
-      dispatch(addPendingMessage({
-        body: messageText.trim(),
-        channelId: currentChannelId,
-        username,
-        tempId: tempId,
-        timestamp: Date.now(),
-        attempts: 0,
-        lastAttempt: 0,
-        isSending: false,
-      }))
+      const tempId = generateTempId();
+      dispatch(
+        addPendingMessage({
+          body: messageText.trim(),
+          channelId: currentChannelId,
+          username,
+          tempId: tempId,
+          timestamp: Date.now(),
+          attempts: 0,
+          lastAttempt: 0,
+          isSending: false,
+        }),
+      );
 
-      setMessageText('')
+      setMessageText("");
 
       // Показываем toast-уведомление об ошибке отправки
-      toast.warn(t('messages.errorSending'))
+      toast.warn(t("messages.errorSending"));
+    } finally {
+      setIsSending(false);
     }
-    finally {
-      setIsSending(false)
-    }
-  }
+  };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit(e)
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
     }
-  }
+  };
 
   const handleRemovePendingMessage = (tempId) => {
-    dispatch(removePendingMessage({ tempId }))
+    dispatch(removePendingMessage({ tempId }));
     // Показываем toast-уведомление об удалении из очереди
-    toast.info(t('messages.removeFromQueue'))
-  }
+    toast.info(t("messages.removeFromQueue"));
+  };
 
   const handleRetryMessage = async (message) => {
-    if (message.isSending) return
+    if (message.isSending) return;
 
     try {
-      dispatch(updatePendingMessage({
-        tempId: message.tempId,
-        isSending: true,
-      }))
+      dispatch(
+        updatePendingMessage({
+          tempId: message.tempId,
+          isSending: true,
+        }),
+      );
 
-      await dispatch(sendMessage({
-        body: message.body,
-        channelId: message.channelId || currentChannelId,
-      })).unwrap()
+      await dispatch(
+        sendMessage({
+          body: message.body,
+          channelId: message.channelId || currentChannelId,
+        }),
+      ).unwrap();
 
-      dispatch(removePendingMessage({ tempId: message.tempId }))
+      dispatch(removePendingMessage({ tempId: message.tempId }));
 
       // Показываем toast-уведомление об успешной отправке из очереди
-      toast.success(t('messages.sent'))
-    }
-    catch (error) {
-      console.error('Retry failed:', error)
-      dispatch(updatePendingMessage({
-        tempId: message.tempId,
-        isSending: false,
-        attempts: message.attempts + 1,
-        lastAttempt: Date.now(),
-      }))
+      toast.success(t("messages.sent"));
+    } catch (error) {
+      console.error("Retry failed:", error);
+      dispatch(
+        updatePendingMessage({
+          tempId: message.tempId,
+          isSending: false,
+          attempts: message.attempts + 1,
+          lastAttempt: Date.now(),
+        }),
+      );
 
       // Показываем toast-уведомление об ошибке повторной отправки
-      toast.error(t('messages.errorSending'))
+      toast.error(t("messages.errorSending"));
     }
-  }
+  };
 
   if (!currentChannelId) {
-    return null
+    return null;
   }
 
   return (
@@ -147,17 +157,23 @@ const MessageForm = () => {
         <div className="mb-2">
           <Badge bg="warning" text="dark" className="mb-2">
             📋
-            {t('messages.pending', { count: pendingMessages.length })}
+            {t("messages.pending", { count: pendingMessages.length })}
           </Badge>
 
           {/* Детализация сообщений в очереди */}
           {pendingMessages.slice(0, 3).map((message) => (
-            <div key={message.tempId} className="pending-message-item small text-muted mb-1">
+            <div
+              key={message.tempId}
+              className="pending-message-item small text-muted mb-1"
+            >
               <div className="d-flex justify-content-between align-items-center">
                 <span>
-                  {message.isSending ? '🔄' : '⏳'}
-                  {message.body.length > 30 ? message.body.substring(0, 30) + '...' : message.body}
-                  {message.attempts > 0 && ` (${t('messages.attempt', { attempt: message.attempts })})`}
+                  {message.isSending ? "🔄" : "⏳"}
+                  {message.body.length > 30
+                    ? message.body.substring(0, 30) + "..."
+                    : message.body}
+                  {message.attempts > 0 &&
+                    ` (${t("messages.attempt", { attempt: message.attempts })})`}
                 </span>
                 <div>
                   <Button
@@ -166,7 +182,7 @@ const MessageForm = () => {
                     className="me-1"
                     onClick={() => handleRetryMessage(message)}
                     disabled={message.isSending}
-                    title={t('messages.retry')}
+                    title={t("messages.retry")}
                   >
                     🔄
                   </Button>
@@ -174,7 +190,7 @@ const MessageForm = () => {
                     variant="outline-danger"
                     size="sm"
                     onClick={() => handleRemovePendingMessage(message.tempId)}
-                    title={t('messages.removeFromQueue')}
+                    title={t("messages.removeFromQueue")}
                   >
                     ❌
                   </Button>
@@ -184,7 +200,9 @@ const MessageForm = () => {
           ))}
           {pendingMessages.length > 3 && (
             <div className="small text-muted">
-              {t('messages.moreMessages', { count: pendingMessages.length - 3 })}
+              {t("messages.moreMessages", {
+                count: pendingMessages.length - 3,
+              })}
             </div>
           )}
         </div>
@@ -195,24 +213,22 @@ const MessageForm = () => {
         <InputGroup>
           <Form.Control
             type="text"
-            placeholder={t('messages.enterMessage')}
-            aria-label={t('messages.enterMessage')}
+            placeholder={t("messages.enterMessage")}
+            aria-label={t("messages.enterMessage")}
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyPress={handleKeyPress}
             disabled={isSending}
           />
-          <Button
-            type="submit"
-            variant="primary"
-            disabled={!canSendMessage()}
-          >
-            {isSending ? `📤 ${t('messages.sending')}` : `📤 ${t('common.send')}`}
+          <Button type="submit" variant="primary" disabled={!canSendMessage()}>
+            {isSending
+              ? `📤 ${t("messages.sending")}`
+              : `📤 ${t("common.send")}`}
           </Button>
         </InputGroup>
       </Form>
     </div>
-  )
-}
+  );
+};
 
-export default MessageForm
+export default MessageForm;
