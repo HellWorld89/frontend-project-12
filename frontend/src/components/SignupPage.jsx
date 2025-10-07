@@ -26,12 +26,14 @@ const SignupPage = () => {
   const [showError, setShowError] = useState(false)
   const { t } = useTranslation()
 
+  // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
   }, [isAuthenticated, navigate])
 
+  // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
       setShowError(true)

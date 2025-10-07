@@ -1,5 +1,6 @@
 import { Modal, Button, Form, Alert } from 'react-bootstrap'
 import { Formik } from 'formik'
+import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,9 +11,9 @@ import {
   setCurrentChannel,
 } from '../../store/channelsSlice'
 import { filterProfanity, hasProfanity } from '../../utils/profanityFilter'
-import { channelNameSchema } from '../../schemas/channelSchemas'
 import Portal from '../Portal'
 
+// Храним Set с ID каналов, для которых уже показали уведомление
 const shownChannelIds = new Set()
 
 const AddChannelModal = ({ show, onHide }) => {
@@ -69,6 +70,21 @@ const AddChannelModal = ({ show, onHide }) => {
     }
   }, [show, dispatch])
 
+  const getValidationSchema = () => {
+    return yup.object().shape({
+      name: yup
+        .string()
+        .min(3, t('validation.channelNameLength'))
+        .max(20, t('validation.channelNameLength'))
+        .test(
+          'unique-name',
+          t('validation.channelNameUnique'),
+          value => !channelNamesOnOpen.has(value.toLowerCase()),
+        )
+        .required(t('validation.required')),
+    })
+  }
+
   useEffect(() => {
     if (show) {
       const names = channels.map(channel => channel.name.toLowerCase())
@@ -97,6 +113,7 @@ const AddChannelModal = ({ show, onHide }) => {
     }
     catch (error) {
       console.error('Error creating channel:', error)
+      // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
       setSubmitting(false)
     }
@@ -122,7 +139,7 @@ const AddChannelModal = ({ show, onHide }) => {
 
         <Formik
           initialValues={{ name: '' }}
-          validationSchema={channelNameSchema(t, channelNamesOnOpen)}
+          validationSchema={getValidationSchema()}
           onSubmit={handleSubmit}
           validateOnChange={true}
           validateOnBlur={true}
@@ -243,6 +260,7 @@ const AddChannelModal = ({ show, onHide }) => {
         </Formik>
       </Modal>
     </Portal>
+
   )
 }
 

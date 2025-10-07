@@ -1,12 +1,12 @@
 import { Modal, Button, Form, Alert } from 'react-bootstrap'
 import { Formik } from 'formik'
+import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 import { renameChannel, resetOperationStatus } from '../../store/channelsSlice'
 import { filterProfanity, hasProfanity } from '../../utils/profanityFilter'
-import { channelNameSchema } from '../../schemas/channelSchemas'
 import Portal from '../Portal'
 
 const RenameChannelModal = ({ show, onHide, channel }) => {
@@ -36,6 +36,21 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
     }
   }, [show, channel, channels, dispatch])
 
+  const getValidationSchema = () => {
+    return yup.object().shape({
+      name: yup
+        .string()
+        .min(3, t('validation.channelNameLength'))
+        .max(20, t('validation.channelNameLength'))
+        .test(
+          'unique-name',
+          t('validation.channelNameUnique'),
+          value => !channelNamesOnOpen.has(value.toLowerCase()),
+        )
+        .required(t('validation.required')),
+    })
+  }
+
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     if (!channel) return
 
@@ -51,6 +66,8 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
       await dispatch(
         renameChannel({ id: channel.id, name: filteredName }),
       ).unwrap()
+
+      // Показываем toast-уведомление об успешном переименовании
       toast.success(t('toast.channelRenamed'))
 
       resetForm()
@@ -58,6 +75,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
     }
     catch (error) {
       console.error('Error renaming channel:', error)
+      // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
     }
     finally {
@@ -81,7 +99,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
 
         <Formik
           initialValues={{ name: channel.name }}
-          validationSchema={channelNameSchema(t, channelNamesOnOpen)}
+          validationSchema={getValidationSchema()}
           onSubmit={handleSubmit}
           validateOnChange={true}
           validateOnBlur={true}
@@ -114,7 +132,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                     <Form.Control
                       ref={inputRef}
                       type="text"
-                      autoComplete="off"
+                      autocomplete="off"
                       name="name"
                       id="name"
                       value={values.name}
@@ -179,6 +197,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
         </Formik>
       </Modal>
     </Portal>
+
   )
 }
 

@@ -26,12 +26,14 @@ const LoginPage = () => {
   )
   const [showError, setShowError] = useState(false)
 
+  // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
   }, [isAuthenticated, navigate])
 
+  // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
       setShowError(true)

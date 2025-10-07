@@ -4,6 +4,7 @@ import SignupPage from './components/SignupPage'
 import MainPage from './components/MainPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFoundPage from './components/NotFoundPage'
+import './api/axiosConfig'
 
 function App() {
   return (

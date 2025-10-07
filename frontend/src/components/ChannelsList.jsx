@@ -14,6 +14,7 @@ const ChannelsList = () => {
     state => state.channels,
   )
   const { username } = useSelector(state => state.auth)
+
   const [showAddModal, setShowAddModal] = useState(false)
   const [showRenameModal, setShowRenameModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -47,6 +48,7 @@ const ChannelsList = () => {
     setShowDropdown(showDropdown === channelId ? null : channelId)
   }
 
+  // Закрываем dropdown при клике вне элемента
   React.useEffect(() => {
     const handleClickOutside = () => {
       setShowDropdown(null)
@@ -57,7 +59,7 @@ const ChannelsList = () => {
 
   return (
     <div className="d-flex flex-column h-100 min-vw-25">
-
+      {/* Заголовок с кнопкой добавления */}
       <div className="d-flex mt-1 justify-content-between mb-2 ps-4 pe-2 p-4">
         <b>{t('channels.channels')}</b>
         <button
@@ -74,6 +76,7 @@ const ChannelsList = () => {
         </button>
       </div>
 
+      {/* Список каналов */}
       <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block flex-grow-1">
         {channels.map(channel => (
           <li key={channel.id} className="nav-item w-100">
@@ -128,6 +131,7 @@ const ChannelsList = () => {
         ))}
       </ul>
 
+      {/* Модальные окна */}
       <AddChannelModal
         show={showAddModal}
         onHide={() => setShowAddModal(false)}
