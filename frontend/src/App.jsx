@@ -5,7 +5,6 @@ import MainPage from './components/MainPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import NotFoundPage from './components/NotFoundPage'
 import './api/axiosConfig'
-
 function App() {
   return (
     <div className="h-100">
