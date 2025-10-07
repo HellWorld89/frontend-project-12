@@ -1,5 +1,6 @@
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
+import { filterProfanity } from '../utils/profanityFilter'
 
 const ChannelHeader = () => {
   const { t } = useTranslation()
@@ -20,8 +21,10 @@ const ChannelHeader = () => {
     <div className="bg-light mb-4 p-3 shadow-sm small">
       <p className="m-0">
         <b>
-          #
-          {currentChannel?.name || ''}
+          <b>
+            #
+            {filterProfanity(currentChannel?.name || '')}
+          </b>
         </b>
       </p>
       <span className="text-muted">

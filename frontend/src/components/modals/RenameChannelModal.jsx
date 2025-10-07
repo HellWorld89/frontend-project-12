@@ -149,7 +149,7 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
                       placeholder={t('validation.channelNameLength')}
                     />
                     <Form.Control.Feedback type="invalid">
-                      {t(errors.name)}
+                      {errors.name}
                     </Form.Control.Feedback>
                     {!errors.name && values.name.length > 0 && isChanged && (
                       <Form.Text className="text-muted">

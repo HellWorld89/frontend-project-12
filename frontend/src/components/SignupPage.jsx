@@ -55,6 +55,7 @@ const SignupPage = () => {
     }
     catch (error) {
       console.error('❌ Registration failed:', error)
+      setShowError(true)
     }
     finally {
       setSubmitting(false)

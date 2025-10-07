@@ -36,10 +36,10 @@
   },
   "validation": {
     "required": "Обязательное поле",
-    "usernameLength": "Имя пользователя должно быть от 3 до 20 символов",
-    "passwordMin": "Пароль должен быть не менее 6 символов",
+    "usernameLength": "От 3 до 20 символов",
+    "passwordMin": "Не менее 6 символов",
     "passwordsMatch": "Пароли должны совпадать",
-    "channelNameLength": "Название канала должно быть от 3 до 20 символов",
+    "channelNameLength": "От 3 до 20 символов",
     "channelNameUnique": "Канал с таким именем уже существует"
   },
   "channels": {
