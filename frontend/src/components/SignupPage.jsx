@@ -13,7 +13,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { Formik } from 'formik'
-import * as yup from 'yup'
+import { signupSchema } from '../schemas/authSchemas'
 import { registerUser } from '../store/authSlice'
 import Header from './Header'
 
@@ -26,31 +26,12 @@ const SignupPage = () => {
   const [showError, setShowError] = useState(false)
   const { t } = useTranslation()
 
-  // Схема валидации
-  const signupSchema = yup.object().shape({
-    username: yup
-      .string()
-      .min(3, t('validation.usernameLength'))
-      .max(20, t('validation.usernameLength'))
-      .required(t('validation.required')),
-    password: yup
-      .string()
-      .min(6, t('validation.passwordMin'))
-      .required(t('validation.required')),
-    confirmPassword: yup
-      .string()
-      .oneOf([yup.ref('password'), null], t('validation.passwordsMatch'))
-      .required(t('validation.required')),
-  })
-
-  // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
   }, [isAuthenticated, navigate])
 
-  // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
       setShowError(true)
@@ -105,7 +86,7 @@ const SignupPage = () => {
                     password: '',
                     confirmPassword: '',
                   }}
-                  validationSchema={signupSchema}
+                  validationSchema={signupSchema(t)}
                   onSubmit={handleSubmit}
                 >
                   {({
@@ -124,6 +105,7 @@ const SignupPage = () => {
                         </Form.Label>
                         <Form.Control
                           type="text"
+                          autoComplete="off"
                           name="username"
                           id="username"
                           value={values.username}
@@ -144,6 +126,7 @@ const SignupPage = () => {
                         </Form.Label>
                         <Form.Control
                           type="password"
+                          autoComplete="off"
                           name="password"
                           id="password"
                           value={values.password}
@@ -164,6 +147,7 @@ const SignupPage = () => {
                         </Form.Label>
                         <Form.Control
                           type="password"
+                          autoComplete="off"
                           name="confirmPassword"
                           id="confirmPassword"
                           value={values.confirmPassword}

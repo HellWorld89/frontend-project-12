@@ -1,6 +1,5 @@
 import { Modal, Button, Form, Alert } from 'react-bootstrap'
 import { Formik } from 'formik'
-import * as yup from 'yup'
 import { useDispatch, useSelector } from 'react-redux'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,8 +10,9 @@ import {
   setCurrentChannel,
 } from '../../store/channelsSlice'
 import { filterProfanity, hasProfanity } from '../../utils/profanityFilter'
+import { channelNameSchema } from '../../schemas/channelSchemas'
+import Portal from '../Portal'
 
-// Храним Set с ID каналов, для которых уже показали уведомление
 const shownChannelIds = new Set()
 
 const AddChannelModal = ({ show, onHide }) => {
@@ -69,21 +69,6 @@ const AddChannelModal = ({ show, onHide }) => {
     }
   }, [show, dispatch])
 
-  const getValidationSchema = () => {
-    return yup.object().shape({
-      name: yup
-        .string()
-        .min(3, t('validation.channelNameLength'))
-        .max(20, t('validation.channelNameLength'))
-        .test(
-          'unique-name',
-          t('validation.channelNameUnique'),
-          value => !channelNamesOnOpen.has(value.toLowerCase()),
-        )
-        .required(t('validation.required')),
-    })
-  }
-
   useEffect(() => {
     if (show) {
       const names = channels.map(channel => channel.name.toLowerCase())
@@ -112,7 +97,6 @@ const AddChannelModal = ({ show, onHide }) => {
     }
     catch (error) {
       console.error('Error creating channel:', error)
-      // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
       setSubmitting(false)
     }
@@ -130,132 +114,135 @@ const AddChannelModal = ({ show, onHide }) => {
     = createdChannelId && channels.some(ch => ch.id === createdChannelId)
 
   return (
-    <Modal show={show} onHide={handleHide} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>{t('channels.addChannel')}</Modal.Title>
-      </Modal.Header>
+    <Portal>
+      <Modal show={show} onHide={handleHide} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{t('channels.addChannel')}</Modal.Title>
+        </Modal.Header>
 
-      <Formik
-        initialValues={{ name: '' }}
-        validationSchema={getValidationSchema()}
-        onSubmit={handleSubmit}
-        validateOnChange={true}
-        validateOnBlur={true}
-      >
-        {({
-          values,
-          errors,
-          touched,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          isSubmitting,
-        }) => (
-          <Form onSubmit={handleSubmit}>
-            <Modal.Body>
-              {operationStatus.error && (
-                <Alert variant="danger" className="mb-3">
-                  {operationStatus.error}
-                </Alert>
-              )}
+        <Formik
+          initialValues={{ name: '' }}
+          validationSchema={channelNameSchema(t, channelNamesOnOpen)}
+          onSubmit={handleSubmit}
+          validateOnChange={true}
+          validateOnBlur={true}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+            isSubmitting,
+          }) => (
+            <Form onSubmit={handleSubmit}>
+              <Modal.Body>
+                {operationStatus.error && (
+                  <Alert variant="danger" className="mb-3">
+                    {operationStatus.error}
+                  </Alert>
+                )}
 
-              {isWaitingForWebSocket && (
-                <Alert variant="info" className="mb-3">
-                  <div className="d-flex align-items-center">
-                    <span className="spinner-border spinner-border-sm me-2" />
-                    {t('channels.adding')}
-                  </div>
-                </Alert>
-              )}
+                {isWaitingForWebSocket && (
+                  <Alert variant="info" className="mb-3">
+                    <div className="d-flex align-items-center">
+                      <span className="spinner-border spinner-border-sm me-2" />
+                      {t('channels.adding')}
+                    </div>
+                  </Alert>
+                )}
 
-              <Form.Group className="mb-3">
-                <Form.Label htmlFor="name">
-                  {t('channels.channelName')}
-                </Form.Label>
-                <Form.Control
-                  ref={inputRef}
-                  type="text"
-                  name="name"
-                  id="name"
-                  value={values.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  isInvalid={touched.name && !!errors.name}
+                <Form.Group className="mb-3">
+                  <Form.Label htmlFor="name">
+                    {t('channels.channelName')}
+                  </Form.Label>
+                  <Form.Control
+                    ref={inputRef}
+                    type="text"
+                    autoComplete="off"
+                    name="name"
+                    id="name"
+                    value={values.name}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    isInvalid={touched.name && !!errors.name}
+                    disabled={
+                      isSubmitting
+                      || operationStatus.loading
+                      || isWaitingForWebSocket
+                      || isChannelCreated
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        handleSubmit()
+                      }
+                    }}
+                    placeholder={t('validation.channelNameLength')}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {t(errors.name)}
+                  </Form.Control.Feedback>
+                  {!errors.name && values.name.length > 0 && (
+                    <Form.Text className="text-muted">
+                      ✓
+                      {t('channels.nameAvailable')}
+                    </Form.Text>
+                  )}
+                </Form.Group>
+              </Modal.Body>
+
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={handleHide}
+                  disabled={
+                    isSubmitting || operationStatus.loading || isChannelCreated
+                  }
+                >
+                  {isChannelCreated ? t('common.close') : t('common.cancel')}
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
                   disabled={
                     isSubmitting
                     || operationStatus.loading
+                    || !!errors.name
+                    || !values.name.trim()
                     || isWaitingForWebSocket
                     || isChannelCreated
                   }
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      handleSubmit()
-                    }
-                  }}
-                  placeholder={t('validation.channelNameLength')}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {t(errors.name)}
-                </Form.Control.Feedback>
-                {!errors.name && values.name.length > 0 && (
-                  <Form.Text className="text-muted">
-                    ✓
-                    {t('channels.nameAvailable')}
-                  </Form.Text>
-                )}
-              </Form.Group>
-            </Modal.Body>
-
-            <Modal.Footer>
-              <Button
-                variant="secondary"
-                onClick={handleHide}
-                disabled={
-                  isSubmitting || operationStatus.loading || isChannelCreated
-                }
-              >
-                {isChannelCreated ? t('common.close') : t('common.cancel')}
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                disabled={
-                  isSubmitting
-                  || operationStatus.loading
-                  || !!errors.name
-                  || !values.name.trim()
-                  || isWaitingForWebSocket
-                  || isChannelCreated
-                }
-              >
-                {isSubmitting || operationStatus.loading
-                  ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2" />
-                        {t('channels.adding')}
-                      </>
-                    )
-                  : isWaitingForWebSocket
+                >
+                  {isSubmitting || operationStatus.loading
                     ? (
                         <>
                           <span className="spinner-border spinner-border-sm me-2" />
-                          {t('common.loading')}
+                          {t('channels.adding')}
                         </>
                       )
-                    : isChannelCreated
+                    : isWaitingForWebSocket
                       ? (
-                          '✅ ' + t('common.success')
+                          <>
+                            <span className="spinner-border spinner-border-sm me-2" />
+                            {t('common.loading')}
+                          </>
                         )
-                      : (
-                          t('channels.add')
-                        )}
-              </Button>
-            </Modal.Footer>
-          </Form>
-        )}
-      </Formik>
-    </Modal>
+                      : isChannelCreated
+                        ? (
+                            '✅ ' + t('common.success')
+                          )
+                        : (
+                            t('channels.add')
+                          )}
+                </Button>
+              </Modal.Footer>
+            </Form>
+          )}
+        </Formik>
+      </Modal>
+    </Portal>
   )
 }
 

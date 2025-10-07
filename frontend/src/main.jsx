@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import { Provider as ReduxProvider } from 'react-redux'
 import { I18nextProvider } from 'react-i18next'
 import { ToastContainer } from 'react-toastify'
-import { Provider, ErrorBoundary } from '@rollbar/react' // ✅ Правильный импорт
+import { Provider, ErrorBoundary } from '@rollbar/react'
 import store from './store'
 import i18n from './i18n'
 import App from './App'
@@ -21,15 +21,11 @@ const rollbarConfig = {
     client: {
       javascript: {
         code_version: '1.0.0',
-        // Добавьте поддержку source maps если нужно
-        // source_map_enabled: true,
-        // guess_uncaught_frames: true
       },
     },
   },
 }
 
-// Компонент для отображения ошибки
 const ErrorFallback = ({ resetError }) => {
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">

@@ -14,7 +14,6 @@ export const useMessageQueue = () => {
   const isProcessingRef = useRef(false)
 
   const retryPendingMessages = useCallback(async () => {
-    // Защита от параллельного выполнения
     if (isProcessingRef.current) {
       console.log('Already processing queue, skipping...')
       return
@@ -29,7 +28,6 @@ export const useMessageQueue = () => {
     console.log('Starting to process message queue:', pendingMessages.length)
 
     try {
-      // Создаем копию для безопасной итерации
       const messagesToProcess = [...pendingMessages]
         .filter(msg => msg.attempts < 3)
         .sort((a, b) => a.timestamp - b.timestamp)
@@ -46,8 +44,6 @@ export const useMessageQueue = () => {
               lastAttempt: Date.now(),
             }),
           )
-
-          // ✅ ПРАВИЛЬНЫЙ ПОДХОД: используем Redux action
           await dispatch(
             sendMessage({
               body: message.body,
@@ -55,11 +51,9 @@ export const useMessageQueue = () => {
             }),
           ).unwrap()
 
-          // Успешно отправлено - удаляем из очереди
           dispatch(removePendingMessage({ tempId: message.tempId }))
           console.log('Message sent successfully:', message.tempId)
 
-          // Небольшая задержка между сообщениями
           await new Promise(resolve => setTimeout(resolve, 100))
         }
         catch (error) {
@@ -106,14 +100,12 @@ export const useMessageQueue = () => {
       }, 1000)
     }
 
-    // Подписываемся на события
     if (socket) {
       socket.on('connect', handleConnect)
     }
 
     window.addEventListener('online', handleOnline)
 
-    // Периодическая проверка очереди (каждые 10 секунд)
     const interval = setInterval(() => {
       if (pendingMessages.length > 0 && navigator.onLine) {
         const socket = socketService.getSocket()

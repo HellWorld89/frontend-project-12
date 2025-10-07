@@ -1,6 +1,5 @@
 import Rollbar from 'rollbar'
 
-// Конфигурация Rollbar
 const rollbarConfig = {
   accessToken: import.meta.env.VITE_ROLLBAR_ACCESS_TOKEN,
   environment: import.meta.env.MODE || 'development',
@@ -21,10 +20,8 @@ const rollbarConfig = {
   },
 }
 
-// Создаем экземпляр Rollbar
 const rollbar = new Rollbar(rollbarConfig)
 
-// Утилиты для ручного отслеживания
 export const trackError = (error, context = {}) => {
   console.error('Tracked error:', error, context)
   rollbar.error(error, context)
@@ -45,7 +42,6 @@ export const trackCritical = (error, context = {}) => {
   rollbar.critical(error, context)
 }
 
-// Утилита для отслеживания действий пользователя
 export const trackUserAction = (action, metadata = {}) => {
   rollbar.info(`User action: ${action}`, {
     action,

@@ -1,4 +1,3 @@
-// hooks/useWebSocket.js
 import { useEffect, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import { addMessage } from '../store/messagesSlice'
@@ -34,7 +33,6 @@ export const useWebSocket = () => {
           connected: socketInstance.connected,
         })
 
-        // Обработчик новых сообщений
         const handleNewMessage = (message) => {
           if (!mounted) {
             console.log(
@@ -47,21 +45,18 @@ export const useWebSocket = () => {
           dispatch(addMessage(message))
         }
 
-        // Обработчик новых каналов
         const handleNewChannel = (channel) => {
           if (!mounted) return
           console.log('📨 useWebSocket: Received newChannel event:', channel)
           dispatch(addChannelFromServer(channel))
         }
 
-        // Обработчик удаления каналов
         const handleRemoveChannel = ({ id }) => {
           if (!mounted) return
           console.log('📨 useWebSocket: Received removeChannel event:', id)
           dispatch(removeChannelFromServer({ id }))
         }
 
-        // Обработчик переименования каналов
         const handleRenameChannel = (channel) => {
           if (!mounted) return
           console.log(
@@ -71,13 +66,11 @@ export const useWebSocket = () => {
           dispatch(updateChannelFromServer(channel))
         }
 
-        // Подписываемся на события
         socketInstance.on('newMessage', handleNewMessage)
         socketInstance.on('newChannel', handleNewChannel)
         socketInstance.on('removeChannel', handleRemoveChannel)
         socketInstance.on('renameChannel', handleRenameChannel)
 
-        // Сохраняем обработчики для очистки
         eventHandlers.current.add(handleNewMessage)
         eventHandlers.current.add(handleNewChannel)
         eventHandlers.current.add(handleRemoveChannel)
@@ -99,7 +92,6 @@ export const useWebSocket = () => {
       console.log('🧹 useWebSocket: Cleaning up')
       mounted = false
 
-      // Отписываемся от всех событий
       if (socketInstance) {
         eventHandlers.current.forEach((handler) => {
           socketInstance.off('newMessage', handler)
@@ -111,5 +103,5 @@ export const useWebSocket = () => {
         console.log('🔌 useWebSocket: Unsubscribed from all events')
       }
     }
-  }, [dispatch]) // УБИРАЕМ channels, messages из зависимостей
+  }, [dispatch])
 }

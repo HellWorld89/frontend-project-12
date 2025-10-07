@@ -13,15 +13,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { Formik } from 'formik'
-import * as yup from 'yup'
+import { loginSchema } from '../schemas/authSchemas'
 import { loginUser, clearError } from '../store/authSlice'
 import Header from './Header'
-
-// Схема валидации
-const loginSchema = yup.object().shape({
-  username: yup.string().required('validation.required'),
-  password: yup.string().required('validation.required'),
-})
 
 const LoginPage = () => {
   const { t } = useTranslation()
@@ -32,14 +26,12 @@ const LoginPage = () => {
   )
   const [showError, setShowError] = useState(false)
 
-  // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
   }, [isAuthenticated, navigate])
 
-  // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
       setShowError(true)
@@ -84,7 +76,7 @@ const LoginPage = () => {
 
                 <Formik
                   initialValues={{ username: '', password: '' }}
-                  validationSchema={loginSchema}
+                  validationSchema={loginSchema(t)}
                   onSubmit={handleSubmit}
                 >
                   {({
@@ -103,6 +95,7 @@ const LoginPage = () => {
                         </Form.Label>
                         <Form.Control
                           type="text"
+                          autoComplete="off"
                           name="username"
                           id="username"
                           value={values.username}
@@ -122,6 +115,7 @@ const LoginPage = () => {
                         </Form.Label>
                         <Form.Control
                           type="password"
+                          autoComplete="off"
                           name="password"
                           id="password"
                           value={values.password}

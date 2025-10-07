@@ -8,14 +8,12 @@ const ConnectionStatus = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [isSocketConnected, setIsSocketConnected] = useState(false)
 
-  // Используем useRef для отслеживания предыдущего состояния
   const prevOnlineStatus = useRef(isOnline)
   const prevSocketStatus = useRef(isSocketConnected)
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true)
-      // Показываем toast при восстановлении соединения
       toast.success(t('toast.connected'), {
         toastId: 'connection-restored',
       })
@@ -23,22 +21,19 @@ const ConnectionStatus = () => {
 
     const handleOffline = () => {
       setIsOnline(false)
-      // Показываем toast при потере соединения
       toast.warn(t('toast.connectionLost'), {
         toastId: 'connection-lost',
-        autoClose: false, // Не закрывать автоматически при потере соединения
+        autoClose: false,
       })
     }
 
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // Проверяем состояние WebSocket каждые 5 секунд
     const interval = setInterval(() => {
       const socket = socketService.getSocket()
       const connected = socket?.connected || false
 
-      // Показываем toast только при изменении состояния сокета
       if (connected !== prevSocketStatus.current) {
         if (connected) {
           toast.success(t('toast.connected'), {
@@ -63,14 +58,12 @@ const ConnectionStatus = () => {
     }
   }, [t])
 
-  // Следим за изменениями онлайн статуса
   useEffect(() => {
     if (isOnline !== prevOnlineStatus.current) {
       prevOnlineStatus.current = isOnline
     }
   }, [isOnline])
 
-  // Этот компонент больше не рендерит визуальные элементы
   return null
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Container, Row, Col, Button, Alert, Spinner } from 'react-bootstrap'
+import { Button, Alert, Spinner } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +14,7 @@ import MessagesList from './MessagesList'
 import MessageForm from './MessageForm'
 import ConnectionStatus from './ConnectionStatus'
 import Header from './Header'
+import ChannelHeader from './ChannelHeader'
 
 const MainPage = () => {
   const dispatch = useDispatch()
@@ -94,7 +95,6 @@ const MainPage = () => {
     return () => clearTimeout(timer)
   }, [dispatch, isAuthenticated, navigate, t, errorShown])
 
-  // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
       const generalChannel
@@ -126,7 +126,6 @@ const MainPage = () => {
     )
   }
 
-  // Показываем ошибку загрузки
   if (loadError) {
     return (
       <div className="h-100 bg-light">
@@ -156,7 +155,6 @@ const MainPage = () => {
     )
   }
 
-  // Показываем индикатор загрузки только при первоначальной загрузке
   if (!dataLoaded) {
     return (
       <div className="h-100 bg-light">
@@ -173,40 +171,29 @@ const MainPage = () => {
     )
   }
 
-  const handleTestRollbar = () => {
-    // Тестовая ошибка для проверки Rollbar
-    throw new Error('Test error for Rollbar integration')
-  }
-
   return (
-    <div className="h-100 bg-light">
+    <div className="d-flex flex-column h-100">
       <Header />
-
       <ConnectionStatus />
-      <button
-        onClick={handleTestRollbar}
-        style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          zIndex: 1000,
-        }}
-        className="btn btn-warning btn-sm"
-        type="button"
-      >
-        Test Rollbar
-      </button>
-      <Container fluid className="h-100">
-        <Row className="h-100">
-          <Col md={3} className="border-end bg-white">
+      <div className="container-fluid h-100 my-0 overflow-hidden">
+        <div className="row h-100 bg-white flex-nowrap">
+          <div className="col-4 col-md-3 col-lg-2 border-end px-0 bg-light d-flex flex-column flex-shrink-0 min-vw-25">
+            {' '}
             <ChannelsList />
-          </Col>
-          <Col md={9} className="d-flex flex-column">
-            <MessagesList />
-            <MessageForm />
-          </Col>
-        </Row>
-      </Container>
+          </div>
+          <div className="col p-0 h-100 d-flex flex-column flex-grow-1">
+            <div className="d-flex flex-column h-100">
+              <ChannelHeader />
+              <div id="messages-box" className="chat-messages overflow-auto px-5 flex-grow-1">
+                <MessagesList />
+              </div>
+              <div className="mt-auto px-5 py-3">
+                <MessageForm />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

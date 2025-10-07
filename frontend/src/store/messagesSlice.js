@@ -1,4 +1,3 @@
-// store/messagesSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 
@@ -71,23 +70,16 @@ const messagesSlice = createSlice({
         channelId: action.payload.channelId,
         currentItemsCount: state.items.length,
       })
-
-      // Ищем сообщение по ID (для сообщений от сервера)
       const existingById = action.payload.id
         ? state.items.find(msg => msg.id === action.payload.id)
         : null
-
-      // Ищем сообщение по tempId (для временных сообщений из очереди)
       const existingByTempId = action.payload.tempId
         ? state.items.find(msg => msg.tempId === action.payload.tempId)
         : null
 
       if (!existingById && !existingByTempId) {
-        // Сообщения нет - добавляем
         state.items.push(action.payload)
         console.log('✅ messagesSlice: Message added successfully')
-
-        // Удаляем из очереди, если есть tempId
         if (action.payload.tempId) {
           state.pendingMessages = state.pendingMessages.filter(
             msg => msg.tempId !== action.payload.tempId,
@@ -96,7 +88,6 @@ const messagesSlice = createSlice({
         }
       }
       else if (existingByTempId && action.payload.id) {
-        // Заменяем временное сообщение на постоянное от сервера
         const index = state.items.findIndex(
           msg => msg.tempId === action.payload.tempId,
         )
@@ -105,8 +96,6 @@ const messagesSlice = createSlice({
           console.log(
             '🔄 messagesSlice: Temporary message replaced with server message',
           )
-
-          // Удаляем из очереди
           state.pendingMessages = state.pendingMessages.filter(
             msg => msg.tempId !== action.payload.tempId,
           )
@@ -154,7 +143,6 @@ const messagesSlice = createSlice({
         queueSizeAfter: state.pendingMessages.length,
       })
     },
-    // ДОБАВЛЯЕМ НОВОЕ ДЕЙСТВИЕ
     updatePendingMessage: (state, action) => {
       const { tempId, ...updates } = action.payload
       const messageIndex = state.pendingMessages.findIndex(
@@ -235,7 +223,7 @@ export const {
   clearMessages,
   addPendingMessage,
   removePendingMessage,
-  updatePendingMessage, // ДОБАВЛЯЕМ В ЭКСПОРТ
+  updatePendingMessage,
   incrementMessageAttempts,
 } = messagesSlice.actions
 export default messagesSlice.reducer
