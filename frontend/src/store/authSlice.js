@@ -19,21 +19,14 @@ export const loginUser = createAsyncThunk(
       return { token, username: userUsername }
     }
     catch (error) {
-      // Улучшенная обработка ошибок
       console.log('Login error details:', error.response)
 
+      // Всегда возвращаем переведенное сообщение
       if (error.response?.status === 401) {
         return rejectWithValue('Неверные имя пользователя или пароль')
       }
 
-      if (error.response?.data?.message) {
-        return rejectWithValue(error.response.data.message)
-      }
-
-      if (error.response?.statusText) {
-        return rejectWithValue(error.response.statusText)
-      }
-
+      // Для всех других ошибок возвращаем общее сообщение
       return rejectWithValue('Ошибка авторизации')
     }
   },
@@ -48,26 +41,19 @@ export const registerUser = createAsyncThunk(
         password,
       })
 
-      // Согласно документации, сервер возвращает { token: ..., username: ... }
       const { token, username: userUsername } = response.data
 
-      // Сохраняем токен в localStorage
       localStorage.setItem('token', token)
       localStorage.setItem('username', userUsername)
 
       return { token, username: userUsername }
     }
     catch (error) {
-      // Обработка ошибок регистрации
       if (error.response?.status === 409) {
         return rejectWithValue('Такой пользователь уже существует')
       }
 
-      const errorMessage
-        = error.response?.data?.message
-          || error.response?.statusText
-          || 'Ошибка регистрации'
-      return rejectWithValue(errorMessage)
+      return rejectWithValue('Ошибка регистрации')
     }
   },
 )
@@ -93,6 +79,10 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null
     },
+    // Добавляем action для установки ошибки
+    setError: (state, action) => {
+      state.error = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -110,9 +100,7 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
-        state.token = null
-        state.username = null
-        state.isAuthenticated = false
+        state.isAuthenticated = false // Важно: сбрасываем аутентификацию при ошибке
       })
       .addCase(registerUser.pending, (state) => {
         state.loading = true
@@ -128,10 +116,10 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
-        // Не сбрасываем токен при ошибке регистрации, так как пользователь мог быть уже авторизован
+        state.isAuthenticated = false // Сбрасываем аутентификацию при ошибке регистрации
       })
   },
 })
 
-export const { logout, clearError } = authSlice.actions
+export const { logout, clearError, setError } = authSlice.actions
 export default authSlice.reducer

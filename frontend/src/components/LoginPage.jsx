@@ -68,7 +68,10 @@ const LoginPage = () => {
                   <Alert
                     variant="danger"
                     dismissible
-                    onClose={() => setShowError(false)}
+                    onClose={() => {
+                      setShowError(false)
+                      dispatch(clearError())
+                    }}
                     className="mb-4"
                   >
                     {error}
