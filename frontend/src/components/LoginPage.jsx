@@ -164,7 +164,7 @@ const LoginPage = () => {
                     {t('auth.noAccount')}
                     {' '}
                     <Link to="/signup" className="text-decoration-none">
-                      {t('auth.signUp')}
+                      {t('auth.register')}
                     </Link>
                   </p>
                 </div>

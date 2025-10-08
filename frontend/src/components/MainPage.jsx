@@ -95,6 +95,17 @@ const MainPage = () => {
     return () => clearTimeout(timer)
   }, [dispatch, isAuthenticated, navigate, t, errorShown])
 
+  useEffect(() => {
+    if (dataLoaded && channels.length > 0 && !currentChannelId) {
+      console.log('🔄 Auto-selecting channel. Available channels:', channels.map(c => c.name))
+      const generalChannel = channels.find(channel => channel.name === 'general') || channels[0]
+      if (generalChannel) {
+        console.log('✅ Setting current channel to:', generalChannel.name, generalChannel.id)
+        dispatch(setCurrentChannel(generalChannel.id))
+      }
+    }
+  }, [dataLoaded, channels, currentChannelId, dispatch])
+
   // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
