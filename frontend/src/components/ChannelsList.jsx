@@ -80,10 +80,11 @@ const ChannelsList = () => {
       <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block flex-grow-1">
         {channels.map(channel => (
           <li key={channel.id} className="nav-item w-100">
-            <div className="d-flex justify-content-between align-items-center position-relative">
+            <div role="group" className="d-flex dropdown btn-group">
+              {/* Кнопка канала */}
               <button
                 type="button"
-                className={`w-100 rounded-0 text-start btn text-truncate ${
+                className={`w-100 rounded-0 text-start text-truncate btn ${
                   channel.id === currentChannelId ? 'btn-secondary' : ''
                 }`}
                 onClick={() => dispatch(setCurrentChannel(channel.id))}
@@ -92,25 +93,28 @@ const ChannelsList = () => {
                 {filterProfanity(channel.name)}
               </button>
 
+              {/* Кнопка управления каналом */}
               {canManageChannel(channel) && (
-                <div className="dropdown position-static">
+                <>
                   <button
                     type="button"
-                    className="btn btn-sm p-0 border-0 ms-1 dropdown-toggle"
+                    className={`flex-grow-0 dropdown-toggle dropdown-toggle-split btn ${
+                      channel.id === currentChannelId ? 'btn-secondary' : ''
+                    }`}
                     onClick={e => toggleDropdown(channel.id, e)}
                     aria-expanded={showDropdown === channel.id}
                   >
                     <span className="visually-hidden">{t('channels.manageChannel')}</span>
                   </button>
 
+                  {/* Dropdown меню */}
                   {showDropdown === channel.id && (
-                    <div className="dropdown-menu show position-absolute end-0">
+                    <div className="dropdown-menu show">
                       <button
                         type="button"
                         className="dropdown-item"
                         onClick={e => handleRenameClick(channel, e)}
                       >
-                        <i className="bi bi-pencil me-2"></i>
                         {t('channels.rename')}
                       </button>
                       <button
@@ -118,12 +122,11 @@ const ChannelsList = () => {
                         className="dropdown-item text-danger"
                         onClick={e => handleDeleteClick(channel, e)}
                       >
-                        <i className="bi bi-trash me-2"></i>
                         {t('channels.delete')}
                       </button>
                     </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </li>
