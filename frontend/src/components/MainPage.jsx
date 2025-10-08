@@ -106,7 +106,6 @@ const MainPage = () => {
     }
   }, [dataLoaded, channels, currentChannelId, dispatch])
 
-  // Автоматически выбираем канал после загрузки
   useEffect(() => {
     if (dataLoaded && channels.length > 0 && !currentChannelId) {
       const generalChannel
@@ -138,7 +137,6 @@ const MainPage = () => {
     )
   }
 
-  // Показываем ошибку загрузки
   if (loadError) {
     return (
       <div className="h-100 bg-light">
@@ -168,7 +166,6 @@ const MainPage = () => {
     )
   }
 
-  // Показываем индикатор загрузки только при первоначальной загрузке
   if (!dataLoaded) {
     return (
       <div className="h-100 bg-light">
@@ -192,18 +189,12 @@ const MainPage = () => {
       <div className="container-fluid h-100 my-0 overflow-hidden">
         <div className="row h-100 bg-white flex-nowrap">
           {' '}
-          {/* Добавлен flex-nowrap */}
-          {/* Боковая панель каналов - фиксированная минимальная ширина */}
           <div className="col-4 col-md-3 col-lg-2 border-end px-0 bg-light d-flex flex-column flex-shrink-0 min-vw-25">
             {' '}
-            {/* Ключевые изменения здесь */}
             <ChannelsList />
           </div>
-
-          {/* Основная область сообщений */}
           <div className="col p-0 h-100 d-flex flex-column flex-grow-1">
             {' '}
-            {/* Добавлен flex-grow-1 */}
             <div className="d-flex flex-column h-100">
               <ChannelHeader />
               <div id="messages-box" className="chat-messages overflow-auto px-5 flex-grow-1">

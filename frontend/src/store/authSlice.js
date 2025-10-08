@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 
-// Асинхронное действие для авторизации
 export const loginUser = createAsyncThunk(
   'auth/login',
   async ({ username, password }, { rejectWithValue }) => {
@@ -20,13 +19,9 @@ export const loginUser = createAsyncThunk(
     }
     catch (error) {
       console.log('Login error details:', error.response)
-
-      // Всегда возвращаем переведенное сообщение
       if (error.response?.status === 401) {
         return rejectWithValue('Неверные имя пользователя или пароль')
       }
-
-      // Для всех других ошибок возвращаем общее сообщение
       return rejectWithValue('Ошибка авторизации')
     }
   },
@@ -79,7 +74,6 @@ const authSlice = createSlice({
     clearError: (state) => {
       state.error = null
     },
-    // Добавляем action для установки ошибки
     setError: (state, action) => {
       state.error = action.payload
     },
@@ -100,7 +94,7 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
-        state.isAuthenticated = false // Важно: сбрасываем аутентификацию при ошибке
+        state.isAuthenticated = false
       })
       .addCase(registerUser.pending, (state) => {
         state.loading = true
@@ -116,7 +110,7 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload
-        state.isAuthenticated = false // Сбрасываем аутентификацию при ошибке регистрации
+        state.isAuthenticated = false
       })
   },
 })

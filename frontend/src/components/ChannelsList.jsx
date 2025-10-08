@@ -48,7 +48,6 @@ const ChannelsList = () => {
     setShowDropdown(showDropdown === channelId ? null : channelId)
   }
 
-  // Закрываем dropdown при клике вне элемента
   React.useEffect(() => {
     const handleClickOutside = () => {
       setShowDropdown(null)

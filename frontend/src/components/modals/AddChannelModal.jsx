@@ -13,7 +13,6 @@ import {
 import { filterProfanity, hasProfanity } from '../../utils/profanityFilter'
 import Portal from '../Portal'
 
-// Храним Set с ID каналов, для которых уже показали уведомление
 const shownChannelIds = new Set()
 
 const AddChannelModal = ({ show, onHide }) => {
@@ -38,12 +37,10 @@ const AddChannelModal = ({ show, onHide }) => {
           createdChannelId,
         )
 
-        // Показываем toast-уведомление только если еще не показывали для этого канала
         if (!shownChannelIds.has(createdChannelId)) {
           toast.success(t('toast.channelAdded'))
           shownChannelIds.add(createdChannelId)
 
-          // Очищаем через некоторое время чтобы не накапливать ID
           setTimeout(() => {
             shownChannelIds.delete(createdChannelId)
           }, 5000)
@@ -94,10 +91,8 @@ const AddChannelModal = ({ show, onHide }) => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      // Фильтруем нецензурные слова в названии канала
       const filteredName = filterProfanity(values.name)
 
-      // Показываем предупреждение если были отфильтрованы слова
       if (hasProfanity(values.name) && filteredName !== values.name) {
         toast.warn(t('profanity.channelNameFiltered'))
       }
@@ -113,7 +108,6 @@ const AddChannelModal = ({ show, onHide }) => {
     }
     catch (error) {
       console.error('Error creating channel:', error)
-      // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
       setSubmitting(false)
     }

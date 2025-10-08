@@ -24,14 +24,12 @@ const LoginPage = () => {
   const { loading, error, isAuthenticated } = useSelector(state => state.auth)
   const [showError, setShowError] = useState(false)
 
-  // Редирект если уже авторизован
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
   }, [isAuthenticated, navigate])
 
-  // Показываем ошибку при ее появлении
   useEffect(() => {
     if (error) {
       setShowError(true)
@@ -47,7 +45,6 @@ const LoginPage = () => {
     }
     catch (error) {
       console.error('Login error:', error)
-      // Ошибка автоматически установится в Redux
     }
     finally {
       setSubmitting(false)

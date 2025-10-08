@@ -55,10 +55,8 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
     if (!channel) return
 
     try {
-      // Фильтруем нецензурные слова в названии канала
       const filteredName = filterProfanity(values.name)
 
-      // Показываем предупреждение если были отфильтрованы слова
       if (hasProfanity(values.name) && filteredName !== values.name) {
         toast.warn(t('profanity.channelNameFiltered'))
       }
@@ -67,7 +65,6 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
         renameChannel({ id: channel.id, name: filteredName }),
       ).unwrap()
 
-      // Показываем toast-уведомление об успешном переименовании
       toast.success(t('toast.channelRenamed'))
 
       resetForm()
@@ -75,7 +72,6 @@ const RenameChannelModal = ({ show, onHide, channel }) => {
     }
     catch (error) {
       console.error('Error renaming channel:', error)
-      // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
     }
     finally {

@@ -22,7 +22,6 @@ const MessageForm = () => {
   const { pendingMessages } = useSelector(state => state.messages)
   const username = useSelector(state => state.auth.username)
 
-  // Фокусируем input при монтировании и при смене канала
   useEffect(() => {
     inputRef.current?.focus()
   }, [currentChannelId])
@@ -34,8 +33,6 @@ const MessageForm = () => {
   const canSendMessage = () => {
     return messageText.trim() && currentChannelId && !isSending
   }
-
-  // Функция для возврата фокуса с задержкой
   const focusInput = () => {
     setTimeout(() => {
       if (inputRef.current) {
@@ -58,10 +55,7 @@ const MessageForm = () => {
     setIsSending(true)
 
     try {
-      // Фильтруем нецензурные слова перед отправкой
       const filteredMessage = filterProfanity(messageText.trim())
-
-      // Показываем предупреждение если были отфильтрованы слова
       if (
         hasProfanity(messageText.trim())
         && filteredMessage !== messageText.trim()
@@ -78,8 +72,6 @@ const MessageForm = () => {
 
       setMessageText('')
       console.log('✅ MessageForm: Message sent via HTTP')
-
-      // Возвращаем фокус на input после успешной отправки с задержкой
       focusInput()
     }
     catch (error) {
@@ -106,11 +98,7 @@ const MessageForm = () => {
       )
 
       setMessageText('')
-
-      // Показываем toast-уведомление об ошибке отправки
       toast.warn(t('messages.errorSending'))
-
-      // Возвращаем фокус на input после ошибки с задержкой
       focusInput()
     }
     finally {
@@ -127,9 +115,7 @@ const MessageForm = () => {
 
   const handleRemovePendingMessage = (tempId) => {
     dispatch(removePendingMessage({ tempId }))
-    // Показываем toast-уведомление об удалении из очереди
     toast.info(t('messages.removeFromQueue'))
-    // Возвращаем фокус после удаления сообщения из очереди
     focusInput()
   }
 
@@ -152,11 +138,7 @@ const MessageForm = () => {
       ).unwrap()
 
       dispatch(removePendingMessage({ tempId: message.tempId }))
-
-      // Показываем toast-уведомление об успешной отправке из очереди
       toast.success(t('messages.sent'))
-
-      // Возвращаем фокус после успешной повторной отправки
       focusInput()
     }
     catch (error) {
@@ -169,11 +151,7 @@ const MessageForm = () => {
           lastAttempt: Date.now(),
         }),
       )
-
-      // Показываем toast-уведомление об ошибке повторной отправки
       toast.error(t('messages.errorSending'))
-
-      // Возвращаем фокус после ошибки повторной отправки
       focusInput()
     }
   }

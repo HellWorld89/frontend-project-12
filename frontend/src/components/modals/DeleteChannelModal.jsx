@@ -22,16 +22,15 @@ const DeleteChannelModal = ({ show, onHide, channel }) => {
       )
       await dispatch(deleteChannel(channel.id)).unwrap()
       console.log('✅ Channel deleted successfully, showing toast...')
-      // Показываем toast-уведомление об успешном удалении
+
       toast.success(t('toast.channelDeleted'), {
-        autoClose: 3000, // Увеличиваем время показа
+        autoClose: 3000,
       })
 
       onHide()
     }
     catch (error) {
       console.error('Error deleting channel:', error)
-      // Показываем toast-уведомление об ошибке
       toast.error(t('toast.error'))
     }
   }
