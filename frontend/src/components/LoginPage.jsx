@@ -21,9 +21,7 @@ const LoginPage = () => {
   const { t } = useTranslation()
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading, error, isAuthenticated } = useSelector(
-    state => state.auth,
-  )
+  const { loading, error, isAuthenticated } = useSelector(state => state.auth)
   const [showError, setShowError] = useState(false)
 
   // Редирект если уже авторизован
@@ -49,6 +47,7 @@ const LoginPage = () => {
     }
     catch (error) {
       console.error('Login error:', error)
+      // Ошибка автоматически установится в Redux
     }
     finally {
       setSubmitting(false)
@@ -107,7 +106,7 @@ const LoginPage = () => {
                           disabled={loading}
                         />
                         <Form.Control.Feedback type="invalid">
-                          {t(errors.username)}
+                          {errors.username}
                         </Form.Control.Feedback>
                       </Form.Group>
 
@@ -127,7 +126,7 @@ const LoginPage = () => {
                           disabled={loading}
                         />
                         <Form.Control.Feedback type="invalid">
-                          {t(errors.password)}
+                          {errors.password}
                         </Form.Control.Feedback>
                       </Form.Group>
 

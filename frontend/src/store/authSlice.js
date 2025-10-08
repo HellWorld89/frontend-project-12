@@ -11,25 +11,30 @@ export const loginUser = createAsyncThunk(
         password,
       })
 
-      // Согласно документации, сервер возвращает { token: ..., username: ... }
       const { token, username: userUsername } = response.data
 
-      // Сохраняем токен в localStorage
       localStorage.setItem('token', token)
       localStorage.setItem('username', userUsername)
 
       return { token, username: userUsername }
     }
     catch (error) {
+      // Улучшенная обработка ошибок
+      console.log('Login error details:', error.response)
+
       if (error.response?.status === 401) {
         return rejectWithValue('Неверные имя пользователя или пароль')
       }
-      // Более детальная обработка ошибок
-      const errorMessage
-        = error.response?.data?.message
-          || error.response?.statusText
-          || 'Ошибка авторизации'
-      return rejectWithValue(errorMessage)
+
+      if (error.response?.data?.message) {
+        return rejectWithValue(error.response.data.message)
+      }
+
+      if (error.response?.statusText) {
+        return rejectWithValue(error.response.statusText)
+      }
+
+      return rejectWithValue('Ошибка авторизации')
     }
   },
 )
